@@ -135,7 +135,7 @@ sst.ECE = sst.ECE[lead.year<11,]
 #________________________________________
 # Lead selection and EOF calculation     \______________________________________________
 
-sel.lead=7
+sel.lead=1
 
 # Apply latitude weight to the anomalies
 for (mmb in 1:15) {
@@ -190,15 +190,14 @@ sst.pcs=unique(sst.ECE.sub[,.(targetdate,pc1,pc2,pc3)],by=c("targetdate"))
 sst.eof[lon>180]$lon=sst.eof[lon>180]$lon-360
 map.world <- map_data ("world2", wrap = c(-180,180))
 
-bmin=-1
-bmax=1
+bmin=-0.6
+bmax=0.6
 bstep=0.1
-bbreaks=seq(-1,1,0.1)
-#bbreaks=c(-1,-0.95,-0.9,-0.85,-0.8,-0.7,-0.5,-0.2,0,0.2,0.3,0.4,0.5)
+bbreaks=c(-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6)
 
 g1 = ggplot() +
-  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof1),breaks=bbreaks,na.fill=TRUE)+
-  scale_fill_distiller(name="EOF1",palette="RdYlBu",direction=-1,
+  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof1),na.fill=TRUE)+
+  scale_fill_distiller(name="EOF1",palette="RdBu",direction=-1,
                        breaks=bbreaks,
                        limits=c(bmin,bmax),
                        guide = guide_colorstrip(),
@@ -210,8 +209,8 @@ g1 = ggplot() +
   theme(axis.text=element_text(size=12),title = element_text(size=10))
 
 g2 = ggplot() +
-  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof2),breaks=bbreaks,na.fill=TRUE)+
-  scale_fill_distiller(name="EOF2",palette="RdYlBu",direction=-1,
+  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof2),na.fill=TRUE)+
+  scale_fill_distiller(name="EOF2",palette="RdBu",direction=-1,
                        breaks=bbreaks,
                        limits=c(bmin,bmax),
                        guide = guide_colorstrip(),
@@ -223,8 +222,8 @@ g2 = ggplot() +
   theme(axis.text=element_text(size=12),title = element_text(size=10))
 
 g3 = ggplot() +
-  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof3),breaks=bbreaks,na.fill=TRUE)+
-  scale_fill_distiller(name="EOF3",palette="RdYlBu",direction=-1,
+  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof3),na.fill=TRUE)+
+  scale_fill_distiller(name="EOF3",palette="RdBu",direction=-1,
                        breaks=bbreaks,
                        limits=c(bmin,bmax),
                        guide = guide_colorstrip(),
