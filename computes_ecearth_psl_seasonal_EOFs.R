@@ -135,7 +135,7 @@ psl.ECE = psl.ECE[lead.year<11,]
 #________________________________________
 # Lead selection and EOF calculation     \______________________________________________
 
-sel.lead=4
+sel.lead=7
 
 # Apply latitude weight to the anomalies
 for (mmb in 1:15) {
@@ -194,7 +194,7 @@ bstep=0.05
 bbreaks=c(-1,-0.95,-0.9,-0.85,-0.8,-0.7,-0.5,-0.2,0,0.2,0.3,0.4,0.5)
 
 g1 = ggplot() +
-  geom_contour_fill(data=slp.eof,aes(lon, lat, z = hcorrmap.eof1),breaks=bbreaks,na.fill=TRUE)+
+  geom_contour_fill(data=slp.eof,aes(lon, lat, z = hcorrmap.eof1),na.fill=TRUE)+
   scale_fill_distiller(name="EOF1",palette="RdYlBu",direction=-1,
                        breaks=bbreaks,
                        limits=c(bmin,bmax),
@@ -207,7 +207,7 @@ g1 = ggplot() +
   theme(axis.text=element_text(size=12),title = element_text(size=10))
 
 g2 = ggplot() +
-  geom_contour_fill(data=slp.eof,aes(lon, lat, z = hcorrmap.eof2),breaks=bbreaks,na.fill=TRUE)+
+  geom_contour_fill(data=slp.eof,aes(lon, lat, z = hcorrmap.eof2),na.fill=TRUE)+
   scale_fill_distiller(name="EOF2",palette="RdYlBu",direction=-1,
                        breaks=bbreaks,
                        limits=c(bmin,bmax),
@@ -220,7 +220,7 @@ g2 = ggplot() +
   theme(axis.text=element_text(size=12),title = element_text(size=10))
 
 g3 = ggplot() +
-  geom_contour_fill(data=slp.eof,aes(lon, lat, z = hcorrmap.eof3),breaks=bbreaks,na.fill=TRUE)+
+  geom_contour_fill(data=slp.eof,aes(lon, lat, z = hcorrmap.eof3),na.fill=TRUE)+
   scale_fill_distiller(name="EOF3",palette="RdYlBu",direction=-1,
                        breaks=bbreaks,
                        limits=c(bmin,bmax),
