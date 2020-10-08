@@ -94,11 +94,17 @@ makematrix <- function(data1,f){
 
 load(file="/home/maralv/data/asst.ECEarth.DCP.19612017.RData")
 
+#################### Settings ########################
+# Remove trend? TRUE or FALSE
+remove.trend=TRUE
+# Select season
+sel.season="DJF"
+# Lead selection
+sel.lead=10
+######################################################
+
 #________________________________________
 # Perform seasonal averages              \______________________________________________
-
-# Select season for computation:
-sel.season = "DJF"
 
 # Define seasons
 sst.ECE = sst.ECE[targetmonth==12 | targetmonth==1 | targetmonth==2, season := "DJF" ]
@@ -132,10 +138,25 @@ sst.ECE = unique(sst.ECE, by=c("lat","lon","lead.year","startdate"))
 
 sst.ECE = sst.ECE[lead.year<11,]
 
+
+#________________________________________
+# Linear trend removal                   \______________________________________________
+
+# For now, only for ensemble mean respect to itself
+
+if(remove.trend==TRUE){
+  # Remove linear trend of SST anomalies
+  sst.ECE=sst.ECE[order(targetdate),]
+  sst.ECE=sst.ECE[,dt.s.asst.em := detrend(s.asst.em),by=.(lat,lon,lead.year)]
+  sst.ECE$s.asst.em=NULL
+  setnames(sst.ECE,"dt.s.asst.em","s.asst.em")
+  
+}
+
 #________________________________________
 # Lead selection and EOF calculation     \______________________________________________
 
-sel.lead=1
+
 
 # Apply latitude weight to the anomalies
 for (mmb in 1:15) {
@@ -266,7 +287,17 @@ g6 = ggplot() +
   xlab("Date")+ylab("PC3 (normalized units)")+
   theme(axis.title = element_text(size=11))
 
+# Save Figure and PCs for the lead
 
-fig <- grid.arrange(g1,g4,g2,g5,g3,g6, ncol = 2,top = textGrob(paste0(sel.season," , lead = ",sel.lead,": EOFs of SST anomalies (weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
-ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"lead",sel.lead,"_EOFs_SST_weighted.png"),plot=fig,width = 10, height = 8)
+if(remove.trend==TRUE){
+  fig <- grid.arrange(g1,g4,g2,g5,g3,g6, ncol = 2,top = textGrob(paste0(sel.season," , lead = ",sel.lead,": EOFs of SST anomalies (no trend, weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
+  ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"lead",sel.lead,"_EOFs_SST_weighted_notrend.png"),plot=fig,width = 10, height = 8)
+  save(sst.pcs,file=paste0("/home/maralv/data/",sel.season,"_lead",sel.lead,"_ECEarth3_PCs_SST_weighted_notrend.RData"))
+  
+  }else{
+  fig <- grid.arrange(g1,g4,g2,g5,g3,g6, ncol = 2,top = textGrob(paste0(sel.season," , lead = ",sel.lead,": EOFs of SST anomalies (weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
+  ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"lead",sel.lead,"_EOFs_SST_weighted.png"),plot=fig,width = 10, height = 8)
+  save(sst.pcs,file=paste0("/home/maralv/data/",sel.season,"_lead",sel.lead,"_ECEarth3_PCs_SST_weighted.RData"))
+} 
+
 
