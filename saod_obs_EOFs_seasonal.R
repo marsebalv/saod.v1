@@ -107,8 +107,18 @@ null_spec <- memoise::memoise(function(x, spans, B = 1000, ..., probs = 0.95) {
 # Remove trend? TRUE or FALSE
 remove.trend=TRUE
 # Select season
-sel.season="DJF"
+sel.season="JJA"
 ######################################################
+
+if(sel.season == "DJF"){
+  mmdd="-01-01"
+}else if(sel.season == "MAM"){
+  mmdd="-03-01"
+}else if(sel.season == "JJA"){
+  mmdd="-06-01"
+}else if(sel.season == "SON"){
+  mmdd="-09-01"
+}
 
 #Datos de SLP (NCEP-NCAR Reana1)
 # lat e/2.5°
@@ -287,7 +297,7 @@ setnames(sst,"s.ssta","ssta")
 setnames(sst,"season.year","date")
 
 # Modify date just to configure variable as date (only year is valid)
-sst[,date := as.Date(as.character(paste0(date,"-01-01")))]
+sst[,date := as.Date(as.character(paste0(date,mmdd)))]
 
 ############
 # SLP season selection
@@ -323,7 +333,7 @@ setnames(slp,"s.slpa","slpa")
 setnames(slp,"season.year","date")
 
 # Modify date just to configure variable as date (only year is valid)
-slp[,date := as.Date(as.character(paste0(date,"-01-01")))]
+slp[,date := as.Date(as.character(paste0(date,mmdd)))]
 
 
 
@@ -577,11 +587,14 @@ g6 = ggplot() +
 if(remove.trend==TRUE){
   fig <- grid.arrange(g1,g4,g2,g5,g3,g6, ncol = 2,top = textGrob(paste0(sel.season," Leading EOFs of SLP anomalies (without trend, weighted by cos(lat)) following Venegas et al. (1997)"),gp=gpar(fontsize=13,font=3)))
   ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_EOFs_SLPA_weighted_notrend.png"),plot=fig,width = 10, height = 8)
+  save(sst.pcs,sst.eof,file=paste0("/home/maralv/data/",sel.season,"_obs_PCs_EOFs_SST_weighted_notrend.RData"))
 }else{
   fig <- grid.arrange(g1,g4,g2,g5,g3,g6, ncol = 2,top = textGrob(paste0(sel.season," Leading EOFs of SLP anomalies (with trend, weighted by cos(lat)) following Venegas et al. (1997)"),gp=gpar(fontsize=13,font=3)))
   ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_EOFs_SLPA_weighted.png"),plot=fig,width = 10, height = 8)
+  save(sst.pcs,sst.eof,file=paste0("/home/maralv/data/",sel.season,"_obs_PCs_EOFs_SST_weighted.RData"))  
 } 
 
 # Clean workspace
 rm(fig,g1,g2,g3,g4,g5,g6)
+
 
