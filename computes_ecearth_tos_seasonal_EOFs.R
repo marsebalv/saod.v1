@@ -89,6 +89,8 @@ makematrix <- function(data1,f){
 #  Man Program
 #---------------------------------------------------------------------------------------
 
+for(sel.lead in 1:10){
+  
 #_________________________________________
 # Loads data                              \_____________________________________________
 
@@ -96,11 +98,11 @@ load(file="/home/maralv/data/asst.ECEarth.DCP.19612017.RData")
 
 #################### Settings ########################
 # Remove trend? TRUE or FALSE
-remove.trend=TRUE
+remove.trend=FALSE
 # Select season
 sel.season="DJF"
 # Lead selection
-sel.lead=10
+#sel.lead=10
 ######################################################
 
 #________________________________________
@@ -292,12 +294,13 @@ g6 = ggplot() +
 if(remove.trend==TRUE){
   fig <- grid.arrange(g1,g4,g2,g5,g3,g6, ncol = 2,top = textGrob(paste0(sel.season," , lead = ",sel.lead,": EOFs of SST anomalies (no trend, weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
   ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"lead",sel.lead,"_EOFs_SST_weighted_notrend.png"),plot=fig,width = 10, height = 8)
-  save(sst.pcs,file=paste0("/home/maralv/data/",sel.season,"_lead",sel.lead,"_ECEarth3_PCs_SST_weighted_notrend.RData"))
+  save(sst.pcs,sst.eof,file=paste0("/home/maralv/data/",sel.season,"_lead",sel.lead,"_ECEarth3_PCs_EOFs_SST_weighted_notrend.RData"))
   
   }else{
   fig <- grid.arrange(g1,g4,g2,g5,g3,g6, ncol = 2,top = textGrob(paste0(sel.season," , lead = ",sel.lead,": EOFs of SST anomalies (weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
   ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"lead",sel.lead,"_EOFs_SST_weighted.png"),plot=fig,width = 10, height = 8)
-  save(sst.pcs,file=paste0("/home/maralv/data/",sel.season,"_lead",sel.lead,"_ECEarth3_PCs_SST_weighted.RData"))
+  save(sst.pcs,sst.eof,file=paste0("/home/maralv/data/",sel.season,"_lead",sel.lead,"_ECEarth3_PCs_EOFs_SST_weighted.RData"))
 } 
 
-
+rm(list=ls())
+}
