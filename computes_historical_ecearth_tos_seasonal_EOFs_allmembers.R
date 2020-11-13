@@ -98,7 +98,11 @@ load(file="/home/maralv/data/asst.ECEarth.hist.19492014.RData")
 # Remove trend? TRUE or FALSE
 remove.trend=FALSE
 # Select season
-sel.season="JJA"
+sel.season="DJF"
+# Rolling years
+roll.years=TRUE
+# number of years to roll
+ny=4
 # Members being used
 members=c(1,2,4,5,6,7,8,9,10,11,12,13,14,15,16)
 ######################################################
@@ -156,6 +160,37 @@ sst.ECE$season=NULL
 # Remove repeated rows
 sst.ECE = unique(sst.ECE, by=c("lat","lon","s.year"))
 
+
+#________________________________________
+# Perform ny-year rolling means           \______________________________________________
+
+if(roll.years==TRUE){
+  
+  alig="left" #to be used for the rolling mean, using for time=t data between t and t+3
+  
+  sst.ECE=sst.ECE[, s.year.roll := frollmean(s.year,n=ny,align=alig),by=.(lat,lon)]
+  sst.ECE=sst.ECE[, s.asst.em.roll := frollmean(s.asst.em,n=ny,align=alig),by=.(lat,lon)]
+  for (mmb in members) {
+    sst.ECE=sst.ECE[, eval(parse(text = paste0("s.asst.",mmb,".roll := frollmean(s.asst.",mmb,",n=ny,align=alig)"))),by=.(lat,lon)]
+  }
+  
+  # Remove rows which could not be used to compute the rolling mean
+  sst.ECE = sst.ECE[!is.na(s.year.roll),]
+  # Eliminate previous variables and rearrange
+  # sst.ECE$s.year=NULL
+  # setnames(sst.ECE,"s.year.roll","s.year")
+  sst.ECE$s.asst.em=NULL
+  setnames(sst.ECE,"s.asst.em.roll","s.asst.em")
+  for (mmb in members) {
+    eval(parse(text = paste0("sst.ECE$s.asst.",mmb,"=NULL")))
+    oldname=paste0("s.asst.",mmb,".roll")
+    newname=paste0("s.asst.",mmb)
+    
+    eval(parse(text = paste0("setnames(sst.ECE,oldname,newname)")))
+    
+  }
+
+}
 
 #________________________________________
 #  EOF calculation                       \______________________________________________
@@ -236,7 +271,7 @@ sst.eof=unique(sst.ECE.allin1[,.(lat,lon,hcorrmap.eof1,hcorrmap.eof2,hcorrmap.eo
 sst.pcs.allin1=unique(sst.ECE.allin1[,.(targetdate,pc1,pc2,pc3)],by=c("targetdate"))
 
 # I have 67 observations for each member, so dates and data table should be arrenged consequently
-my=max(sst.ECE.sub$s.year)
+my=max(year(sst.ECE.sub$targetdate))
 a=sum((year(sst.pcs.allin1$targetdate)==my)*seq(1,length(sst.pcs.allin1$targetdate),1))
 
 sst.pcs=sst.pcs.allin1[1:a,]
@@ -388,13 +423,27 @@ g6 = ggplot() +
 # Save Figure and PCs for the lead
 
 if(remove.trend==TRUE){
-  fig <- grid.arrange(g1,g4,g2,g5,g3,g6, ncol = 2,top = textGrob(paste0(sel.season," , historical: EOFs of SST anomalies (no trend, weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
-  ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_EOFs_SST_weighted_notrend_allmembers.png"),plot=fig,width = 10, height = 8)
   # save(sst.pcs,sst.eof,file=paste0("/home/maralv/data/",sel.season,"_historical_ECEarth3_PCs_EOFs_SST_weighted_notrend_allmembers.RData"))
+  if(roll.years==TRUE){
+    fig <- grid.arrange(g1,g4,g2,g5,g3,g6, ncol = 2,top = textGrob(paste0(sel.season," , historical: EOFs of SST anomalies (no trend, rolling ",ny," years, weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
+    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_EOFs_SST_weighted_notrend_allmembers_rollingyears_",ny,".png"),plot=fig,width = 10, height = 8)
+    
+  }else{
+    fig <- grid.arrange(g1,g4,g2,g5,g3,g6, ncol = 2,top = textGrob(paste0(sel.season," , historical: EOFs of SST anomalies (no trend, weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
+    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_EOFs_SST_weighted_notrend_allmembers.png"),plot=fig,width = 10, height = 8)
+    
+  }
   
   }else{
-  fig <- grid.arrange(g1,g4,g2,g5,g3,g6, ncol = 2,top = textGrob(paste0(sel.season," , historical: EOFs of SST anomalies (weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
-  ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_EOFs_SST_weighted_allmembers.png"),plot=fig,width = 10, height = 8)
   # save(sst.pcs,sst.eof,file=paste0("/home/maralv/data/",sel.season,"_historical_ECEarth3_PCs_EOFs_SST_weighted_allmembers.RData"))
+  if(roll.years==TRUE){
+    fig <- grid.arrange(g1,g4,g2,g5,g3,g6, ncol = 2,top = textGrob(paste0(sel.season," , historical: EOFs of SST anomalies (rolling ",ny," years, weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
+    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_EOFs_SST_weighted_allmembers_rollingyears_",ny,".png"),plot=fig,width = 10, height = 8)
+    
+  }else{
+    fig <- grid.arrange(g1,g4,g2,g5,g3,g6, ncol = 2,top = textGrob(paste0(sel.season," , historical: EOFs of SST anomalies (weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
+    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_EOFs_SST_weighted_allmembers.png"),plot=fig,width = 10, height = 8)
+    
+  }
 } 
 
