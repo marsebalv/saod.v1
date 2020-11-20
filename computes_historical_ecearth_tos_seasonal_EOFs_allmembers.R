@@ -96,11 +96,11 @@ load(file="/home/maralv/data/asst.ECEarth.hist.19492014.RData")
 
 #################### Settings ########################
 # Remove trend? TRUE or FALSE
-remove.trend=FALSE
+remove.trend=TRUE
 # Select season
 sel.season="DJF"
 # Rolling years
-roll.years=TRUE
+roll.years=FALSE
 # number of years to roll
 ny=4
 # Members being used
@@ -301,14 +301,19 @@ map.world <- map_data ("world2", wrap = c(-180,180))
 bmin=-0.6
 bmax=0.6
 bstep=0.1
-bbreaks=c(-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6)
+bbreaks.contours=c(-99,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,99)
+bbreaks.cbar=c(-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6)
+labels.cbar=as.character(bbreaks.cbar)
+labels.cbar[1]=""
+labels.cbar[length(labels.cbar)]=""
 
 g1 = ggplot() +
-  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof1),na.fill=TRUE)+
+  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof1),breaks=bbreaks.contours,na.fill=TRUE)+
   scale_fill_distiller(name="EOF1",palette="RdBu",direction=-1,
-                       breaks=bbreaks,
+                       breaks=bbreaks.cbar,
                        limits=c(bmin,bmax),
                        guide = guide_colorstrip(),
+                       labels=labels.cbar,
                        oob  = scales::squish)+
   scale_x_longitude(breaks=seq(-70,20,20))+
   scale_y_latitude(breaks=seq(-40,0,10))+
@@ -317,11 +322,12 @@ g1 = ggplot() +
   theme(axis.text=element_text(size=12),title = element_text(size=10))
 
 g2 = ggplot() +
-  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof2),na.fill=TRUE)+
+  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof2),breaks=bbreaks.contours,na.fill=TRUE)+
   scale_fill_distiller(name="EOF2",palette="RdBu",direction=-1,
-                       breaks=bbreaks,
+                       breaks=bbreaks.cbar,
                        limits=c(bmin,bmax),
                        guide = guide_colorstrip(),
+                       labels=labels.cbar,
                        oob  = scales::squish)+
   scale_x_longitude(breaks=seq(-70,20,20))+
   scale_y_latitude(breaks=seq(-40,0,10))+
@@ -330,11 +336,12 @@ g2 = ggplot() +
   theme(axis.text=element_text(size=12),title = element_text(size=10))
 
 g3 = ggplot() +
-  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof3),na.fill=TRUE)+
+  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof3),breaks=bbreaks.contours,na.fill=TRUE)+
   scale_fill_distiller(name="EOF3",palette="RdBu",direction=-1,
-                       breaks=bbreaks,
+                       breaks=bbreaks.cbar,
                        limits=c(bmin,bmax),
                        guide = guide_colorstrip(),
+                       labels=labels.cbar,
                        oob  = scales::squish)+
   scale_x_longitude(breaks=seq(-70,20,20))+
   scale_y_latitude(breaks=seq(-40,0,10))+
