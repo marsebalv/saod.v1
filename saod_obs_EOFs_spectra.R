@@ -306,14 +306,19 @@ sst.pcs=unique(sst[,.(date,smthpc1,smthpc2,smthpc3)],by=c("date"))
 bmin=-0.6
 bmax=0.6
 bstep=0.1
-bbreaks=c(-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6)
+bbreaks.contours=c(-99,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,99)
+bbreaks.cbar=c(-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6)
+labels.cbar=as.character(bbreaks.cbar)
+labels.cbar[1]=""
+labels.cbar[length(labels.cbar)]=""
 
 g1 = ggplot() +
-  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof1),breaks=bbreaks,na.fill=TRUE)+
+  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof1),breaks=bbreaks.contours,na.fill=TRUE)+
   scale_fill_distiller(name="EOF1",palette="RdBu",direction=-1,
-                       breaks=bbreaks,
+                       breaks=bbreaks.cbar,
                        limits=c(bmin,bmax),
                        guide = guide_colorstrip(),
+                       labels=labels.cbar,
                        oob  = scales::squish)+
   scale_x_longitude(breaks=seq(-70,20,20))+
   scale_y_latitude(breaks=seq(-40,0,10))+
@@ -322,11 +327,12 @@ g1 = ggplot() +
   theme(axis.text=element_text(size=12),title = element_text(size=10))
 
 g2 = ggplot() +
-  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof2),breaks=bbreaks,na.fill=TRUE)+
+  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof2),breaks=bbreaks.contours,na.fill=TRUE)+
   scale_fill_distiller(name="EOF2",palette="RdBu",direction=-1,
-                       breaks=bbreaks,
+                       breaks=bbreaks.cbar,
                        limits=c(bmin,bmax),
                        guide = guide_colorstrip(),
+                       labels=labels.cbar,
                        oob  = scales::squish)+
   scale_x_longitude(breaks=seq(-70,20,20))+
   scale_y_latitude(breaks=seq(-40,0,10))+
@@ -335,11 +341,12 @@ g2 = ggplot() +
   theme(axis.text=element_text(size=12),title = element_text(size=10))
 
 g3 = ggplot() +
-  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof3),breaks=bbreaks,na.fill=TRUE)+
+  geom_contour_fill(data=sst.eof,aes(lon, lat, z = hcorrmap.eof3),breaks=bbreaks.contours,na.fill=TRUE)+
   scale_fill_distiller(name="EOF3",palette="RdBu",direction=-1,
-                       breaks=bbreaks,
+                       breaks=bbreaks.cbar,
                        limits=c(bmin,bmax),
                        guide = guide_colorstrip(),
+                       labels=labels.cbar,
                        oob  = scales::squish)+
   scale_x_longitude(breaks=seq(-70,20,20))+
   scale_y_latitude(breaks=seq(-40,0,10))+
@@ -437,14 +444,19 @@ slp.pcs=unique(slp[,.(date,smthpc1,smthpc2,smthpc3)],by=c("date"))
 bmin=-0.6
 bmax=0.6
 bstep=0.1
-bbreaks=c(-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6)
+bbreaks.contours=c(-99,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,99)
+bbreaks.cbar=c(-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6)
+labels.cbar=as.character(bbreaks.cbar)
+labels.cbar[1]=""
+labels.cbar[length(labels.cbar)]=""
 
 g1 = ggplot() +
-  geom_contour_fill(data=slp.eof,aes(lon, lat, z = hcorrmap.eof1),breaks=bbreaks,na.fill=TRUE)+
+  geom_contour_fill(data=slp.eof,aes(lon, lat, z = hcorrmap.eof1),breaks=bbreaks.contours,na.fill=TRUE)+
   scale_fill_distiller(name="EOF1",palette="RdYlBu",direction=-1,
-                       breaks=bbreaks,
+                       breaks=bbreaks.cbar,
                        limits=c(bmin,bmax),
                        guide = guide_colorstrip(),
+                       labels=labels.cbar,
                        oob  = scales::squish)+
   scale_x_longitude(breaks=seq(-70,20,20))+
   scale_y_latitude(breaks=seq(-40,0,10))+
@@ -453,11 +465,12 @@ g1 = ggplot() +
   theme(axis.text=element_text(size=12),title = element_text(size=10))
 
 g2 = ggplot() +
-  geom_contour_fill(data=slp.eof,aes(lon, lat, z = hcorrmap.eof2),breaks=bbreaks,na.fill=TRUE)+
+  geom_contour_fill(data=slp.eof,aes(lon, lat, z = hcorrmap.eof2),breaks=bbreaks.contours,na.fill=TRUE)+
   scale_fill_distiller(name="EOF2",palette="RdYlBu",direction=-1,
-                       breaks=bbreaks,
+                       breaks=bbreaks.cbar,
                        limits=c(bmin,bmax),
                        guide = guide_colorstrip(),
+                       labels=labels.cbar,
                        oob  = scales::squish)+
   scale_x_longitude(breaks=seq(-70,20,20))+
   scale_y_latitude(breaks=seq(-40,0,10))+
@@ -466,11 +479,12 @@ g2 = ggplot() +
   theme(axis.text=element_text(size=12),title = element_text(size=10))
 
 g3 = ggplot() +
-  geom_contour_fill(data=slp.eof,aes(lon, lat, z = hcorrmap.eof3),breaks=bbreaks,na.fill=TRUE)+
+  geom_contour_fill(data=slp.eof,aes(lon, lat, z = hcorrmap.eof3),breaks=bbreaks.contours,na.fill=TRUE)+
   scale_fill_distiller(name="EOF3",palette="RdYlBu",direction=-1,
-                       breaks=bbreaks,
+                       breaks=bbreaks.cbar,
                        limits=c(bmin,bmax),
                        guide = guide_colorstrip(),
+                       labels=labels.cbar,
                        oob  = scales::squish)+
   scale_x_longitude(breaks=seq(-70,20,20))+
   scale_y_latitude(breaks=seq(-40,0,10))+
@@ -518,110 +532,110 @@ rm(fig,g1,g2,g3,g4,g5,g6)
 #-----------------------------------------------
 # SPECTRA of PCs
 #-----------------------------------------------
-
-# SST
-
-out = fftspectrum(sst.pcs$smthpc1[is.na(sst.pcs$smthpc1)==FALSE], spans = c(3,5), B = 10000, probs = 0.90)
-
-out$period = 1/out$freq
-out$periodYY = out$period/12
-
-# Plot
-
-g1 <- ggplot()+
-  theme_bw()+
-  geom_line(data=out,aes(periodYY,spec),col="#238443",alpha=0.9)+
-  geom_line(data=out,aes(periodYY,ar_spectrum),col="#78c679",alpha=0.9,linetype = "dashed")+
-  geom_ribbon(data=out, aes(periodYY, ymin=(spec*0) , ymax=`90%` ),fill="#d9f0a3",alpha=0.5)+
-  scale_x_continuous(trans=reverselog_trans(10),breaks=c(72,30,20,14,9,5,3,2,1))+
-  labs(x="Period (years)",y="Power",title = "SST PC1 Spectrum (90%)")+
-  theme(text = element_text(size=14),title = element_text(size=14),axis.text = element_text(size = 14))
-
-out = fftspectrum(sst.pcs$smthpc2[is.na(sst.pcs$smthpc1)==FALSE], spans = c(3,5), B = 10000, probs = 0.90)
-
-out$period = 1/out$freq
-out$periodYY = out$period/12
-
-# Plot
-
-g2 <- ggplot()+
-  theme_bw()+
-  geom_line(data=out,aes(periodYY,spec),col="#238443",alpha=0.9)+
-  geom_line(data=out,aes(periodYY,ar_spectrum),col="#78c679",alpha=0.9,linetype = "dashed")+
-  geom_ribbon(data=out, aes(periodYY, ymin=(spec*0) , ymax=`90%` ),fill="#d9f0a3",alpha=0.5)+
-  scale_x_continuous(trans=reverselog_trans(10),breaks=c(72,30,20,14,9,5,3,2,1))+
-  labs(x="Period (years)",y="Power",title = "SST PC2 Spectrum (90%)")+
-  theme(text = element_text(size=14),title = element_text(size=14),axis.text = element_text(size = 14))
-
-
-out = fftspectrum(sst.pcs$smthpc3[is.na(sst.pcs$smthpc1)==FALSE], spans = c(3,5), B = 10000, probs = 0.90)
-
-out$period = 1/out$freq
-out$periodYY = out$period/12
-
-# Plot
-
-g3 <- ggplot()+
-  theme_bw()+
-  geom_line(data=out,aes(periodYY,spec),col="#238443",alpha=0.9)+
-  geom_line(data=out,aes(periodYY,ar_spectrum),col="#78c679",alpha=0.9,linetype = "dashed")+
-  geom_ribbon(data=out, aes(periodYY, ymin=(spec*0) , ymax=`90%` ),fill="#d9f0a3",alpha=0.5)+
-  scale_x_continuous(trans=reverselog_trans(10),breaks=c(72,30,20,14,9,5,3,2,1))+
-  labs(x="Period (years)",y="Power",title = "SST PC3 Spectrum (90%)")+
-  theme(text = element_text(size=14),title = element_text(size=14),axis.text = element_text(size = 14))
-
-
-# SLP
-
-out = fftspectrum(slp.pcs$smthpc1[is.na(slp.pcs$smthpc1)==FALSE], spans = c(3,5), B = 10000, probs = 0.90)
-
-out$period = 1/out$freq
-out$periodYY = out$period/12
-
-# Plot
-
-g4 <- ggplot()+
-  theme_bw()+
-  geom_line(data=out,aes(periodYY,spec),col="#ae017e",alpha=0.9)+
-  geom_line(data=out,aes(periodYY,ar_spectrum),col="#f768a1",alpha=0.9,linetype = "dashed")+
-  geom_ribbon(data=out, aes(periodYY, ymin=(spec*0) , ymax=`90%` ),fill="#fa9fb5",alpha=0.5)+
-  scale_x_continuous(trans=reverselog_trans(10),breaks=c(72,30,20,14,9,5,3,2,1))+
-  labs(x="Period (years)",y="Power",title = "SLP PC1 Spectrum (90%)")+
-  theme(text = element_text(size=14),title = element_text(size=14),axis.text = element_text(size = 14))
-
-out = fftspectrum(slp.pcs$smthpc2[is.na(slp.pcs$smthpc2)==FALSE], spans = c(3,5), B = 10000, probs = 0.90)
-
-out$period = 1/out$freq
-out$periodYY = out$period/12
-
-# Plot
-
-g5 <- ggplot()+
-  theme_bw()+
-  geom_line(data=out,aes(periodYY,spec),col="#ae017e",alpha=0.9)+
-  geom_line(data=out,aes(periodYY,ar_spectrum),col="#f768a1",alpha=0.9,linetype = "dashed")+
-  geom_ribbon(data=out, aes(periodYY, ymin=(spec*0) , ymax=`90%` ),fill="#fa9fb5",alpha=0.5)+
-  scale_x_continuous(trans=reverselog_trans(10),breaks=c(72,30,20,14,9,5,3,2,1))+
-  labs(x="Period (years)",y="Power",title = "SLP PC2 Spectrum (90%)")+
-  theme(text = element_text(size=14),title = element_text(size=14),axis.text = element_text(size = 14))
-
-
-out = fftspectrum(slp.pcs$smthpc3[is.na(slp.pcs$smthpc3)==FALSE], spans = c(3,5), B = 10000, probs = 0.90)
-
-out$period = 1/out$freq
-out$periodYY = out$period/12
-
-# Plot
-
-g6 <- ggplot()+
-  theme_bw()+
-  geom_line(data=out,aes(periodYY,spec),col="#ae017e",alpha=0.9)+
-  geom_line(data=out,aes(periodYY,ar_spectrum),col="#f768a1",alpha=0.9,linetype = "dashed")+
-  geom_ribbon(data=out, aes(periodYY, ymin=(spec*0) , ymax=`90%` ),fill="#fa9fb5",alpha=0.5)+
-  scale_x_continuous(trans=reverselog_trans(10),breaks=c(72,30,20,14,9,5,3,2,1))+
-  labs(x="Period (years)",y="Power",title = "SLP PC3 Spectrum (90%)")+
-  theme(text = element_text(size=14),title = element_text(size=14),axis.text = element_text(size = 14))
-
-fig <- grid.arrange(g1,g4,g2,g5,g3,g6, ncol = 2,top = textGrob(paste0("SST and SLP monthly PCs Spectra"),gp=gpar(fontsize=13,font=3)))
-ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/spectra_pcs.png"),plot=fig,width = 13, height = 12)
+# 
+# # SST
+# 
+# out = fftspectrum(sst.pcs$smthpc1[is.na(sst.pcs$smthpc1)==FALSE], spans = c(3,5), B = 10000, probs = 0.90)
+# 
+# out$period = 1/out$freq
+# out$periodYY = out$period/12
+# 
+# # Plot
+# 
+# g1 <- ggplot()+
+#   theme_bw()+
+#   geom_line(data=out,aes(periodYY,spec),col="#238443",alpha=0.9)+
+#   geom_line(data=out,aes(periodYY,ar_spectrum),col="#78c679",alpha=0.9,linetype = "dashed")+
+#   geom_ribbon(data=out, aes(periodYY, ymin=(spec*0) , ymax=`90%` ),fill="#d9f0a3",alpha=0.5)+
+#   scale_x_continuous(trans=reverselog_trans(10),breaks=c(72,30,20,14,9,5,3,2,1))+
+#   labs(x="Period (years)",y="Power",title = "SST PC1 Spectrum (90%)")+
+#   theme(text = element_text(size=14),title = element_text(size=14),axis.text = element_text(size = 14))
+# 
+# out = fftspectrum(sst.pcs$smthpc2[is.na(sst.pcs$smthpc1)==FALSE], spans = c(3,5), B = 10000, probs = 0.90)
+# 
+# out$period = 1/out$freq
+# out$periodYY = out$period/12
+# 
+# # Plot
+# 
+# g2 <- ggplot()+
+#   theme_bw()+
+#   geom_line(data=out,aes(periodYY,spec),col="#238443",alpha=0.9)+
+#   geom_line(data=out,aes(periodYY,ar_spectrum),col="#78c679",alpha=0.9,linetype = "dashed")+
+#   geom_ribbon(data=out, aes(periodYY, ymin=(spec*0) , ymax=`90%` ),fill="#d9f0a3",alpha=0.5)+
+#   scale_x_continuous(trans=reverselog_trans(10),breaks=c(72,30,20,14,9,5,3,2,1))+
+#   labs(x="Period (years)",y="Power",title = "SST PC2 Spectrum (90%)")+
+#   theme(text = element_text(size=14),title = element_text(size=14),axis.text = element_text(size = 14))
+# 
+# 
+# out = fftspectrum(sst.pcs$smthpc3[is.na(sst.pcs$smthpc1)==FALSE], spans = c(3,5), B = 10000, probs = 0.90)
+# 
+# out$period = 1/out$freq
+# out$periodYY = out$period/12
+# 
+# # Plot
+# 
+# g3 <- ggplot()+
+#   theme_bw()+
+#   geom_line(data=out,aes(periodYY,spec),col="#238443",alpha=0.9)+
+#   geom_line(data=out,aes(periodYY,ar_spectrum),col="#78c679",alpha=0.9,linetype = "dashed")+
+#   geom_ribbon(data=out, aes(periodYY, ymin=(spec*0) , ymax=`90%` ),fill="#d9f0a3",alpha=0.5)+
+#   scale_x_continuous(trans=reverselog_trans(10),breaks=c(72,30,20,14,9,5,3,2,1))+
+#   labs(x="Period (years)",y="Power",title = "SST PC3 Spectrum (90%)")+
+#   theme(text = element_text(size=14),title = element_text(size=14),axis.text = element_text(size = 14))
+# 
+# 
+# # SLP
+# 
+# out = fftspectrum(slp.pcs$smthpc1[is.na(slp.pcs$smthpc1)==FALSE], spans = c(3,5), B = 10000, probs = 0.90)
+# 
+# out$period = 1/out$freq
+# out$periodYY = out$period/12
+# 
+# # Plot
+# 
+# g4 <- ggplot()+
+#   theme_bw()+
+#   geom_line(data=out,aes(periodYY,spec),col="#ae017e",alpha=0.9)+
+#   geom_line(data=out,aes(periodYY,ar_spectrum),col="#f768a1",alpha=0.9,linetype = "dashed")+
+#   geom_ribbon(data=out, aes(periodYY, ymin=(spec*0) , ymax=`90%` ),fill="#fa9fb5",alpha=0.5)+
+#   scale_x_continuous(trans=reverselog_trans(10),breaks=c(72,30,20,14,9,5,3,2,1))+
+#   labs(x="Period (years)",y="Power",title = "SLP PC1 Spectrum (90%)")+
+#   theme(text = element_text(size=14),title = element_text(size=14),axis.text = element_text(size = 14))
+# 
+# out = fftspectrum(slp.pcs$smthpc2[is.na(slp.pcs$smthpc2)==FALSE], spans = c(3,5), B = 10000, probs = 0.90)
+# 
+# out$period = 1/out$freq
+# out$periodYY = out$period/12
+# 
+# # Plot
+# 
+# g5 <- ggplot()+
+#   theme_bw()+
+#   geom_line(data=out,aes(periodYY,spec),col="#ae017e",alpha=0.9)+
+#   geom_line(data=out,aes(periodYY,ar_spectrum),col="#f768a1",alpha=0.9,linetype = "dashed")+
+#   geom_ribbon(data=out, aes(periodYY, ymin=(spec*0) , ymax=`90%` ),fill="#fa9fb5",alpha=0.5)+
+#   scale_x_continuous(trans=reverselog_trans(10),breaks=c(72,30,20,14,9,5,3,2,1))+
+#   labs(x="Period (years)",y="Power",title = "SLP PC2 Spectrum (90%)")+
+#   theme(text = element_text(size=14),title = element_text(size=14),axis.text = element_text(size = 14))
+# 
+# 
+# out = fftspectrum(slp.pcs$smthpc3[is.na(slp.pcs$smthpc3)==FALSE], spans = c(3,5), B = 10000, probs = 0.90)
+# 
+# out$period = 1/out$freq
+# out$periodYY = out$period/12
+# 
+# # Plot
+# 
+# g6 <- ggplot()+
+#   theme_bw()+
+#   geom_line(data=out,aes(periodYY,spec),col="#ae017e",alpha=0.9)+
+#   geom_line(data=out,aes(periodYY,ar_spectrum),col="#f768a1",alpha=0.9,linetype = "dashed")+
+#   geom_ribbon(data=out, aes(periodYY, ymin=(spec*0) , ymax=`90%` ),fill="#fa9fb5",alpha=0.5)+
+#   scale_x_continuous(trans=reverselog_trans(10),breaks=c(72,30,20,14,9,5,3,2,1))+
+#   labs(x="Period (years)",y="Power",title = "SLP PC3 Spectrum (90%)")+
+#   theme(text = element_text(size=14),title = element_text(size=14),axis.text = element_text(size = 14))
+# 
+# fig <- grid.arrange(g1,g4,g2,g5,g3,g6, ncol = 2,top = textGrob(paste0("SST and SLP monthly PCs Spectra"),gp=gpar(fontsize=13,font=3)))
+# ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/spectra_pcs.png"),plot=fig,width = 13, height = 12)
 
