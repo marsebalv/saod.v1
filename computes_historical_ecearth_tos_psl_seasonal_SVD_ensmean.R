@@ -107,40 +107,50 @@ ny=4
 members=c(1,2,4,5,6,7,8,9,10,11,12,13,14,15,16)
 ######################################################
 
+# Rearrange data using number of member as variable
+# STT
+# rename according to member
+old = c("asst.1","asst.2","asst.4","asst.5","asst.6","asst.7","asst.8","asst.9","asst.10","asst.11","asst.12","asst.13","asst.14","asst.15","asst.16","asst.em")
+new = c("1","2","4","5","6","7","8","9","10","11","12","13","14","15","16","99")
+setnames(sst.ECE,old,new)
+# Melt data table for easy operation
+sst.ECE=melt(sst.ECE,id=c("lat","lon","targetdate","targetmonth"),variable.name="member",value.name="asst")
+
+sst.ECE$member=as.numeric(as.character(sst.ECE$member))
+
+# SLP
+# rename according to member
+old = c("apsl.1","apsl.2","apsl.4","apsl.5","apsl.6","apsl.7","apsl.8","apsl.9","apsl.10","apsl.11","apsl.12","apsl.13","apsl.14","apsl.15","apsl.16","apsl.em")
+setnames(psl.ECE,old,new)
+# Melt data table for easy operation
+psl.ECE=melt(psl.ECE,id=c("lat","lon","targetdate","targetmonth"),variable.name="member",value.name="apsl")  
+
+psl.ECE$member=as.numeric(as.character(psl.ECE$member))
+
+# Retain only the ensemble mean
+sst.ECE=sst.ECE[member==99,]
+psl.ECE=psl.ECE[member==99,]
+
+sst.ECE$member=NULL
+psl.ECE$member=NULL
+
 #________________________________________
 # Linear trend removal while monthly     \______________________________________________
 
-# For now, only for ensemble mean respect to itself
-
-# SST
 if(remove.trend==TRUE){
   # Remove linear trend of SST anomalies
   sst.ECE=sst.ECE[order(targetdate),]
-  sst.ECE=sst.ECE[,dt.asst.em := detrend(asst.em),by=.(lat,lon)]
-  sst.ECE$asst.em=NULL
-  setnames(sst.ECE,"dt.asst.em","asst.em")
+  sst.ECE=sst.ECE[,dt.asst := detrend(asst),by=.(lat,lon)]
+  sst.ECE$asst=NULL
+  setnames(sst.ECE,"dt.asst","asst")
   
-  for (mmb in members) {
-    sst.ECE[ , eval(parse(text = paste0("asst.",mmb, ":= detrend(asst.",mmb,")"))),by=.(lat,lon)]
-    # eval(parse(text=paste0("sst.ECE$asst.",mmb,"=NULL")))
-    
-  }
-}
-
-# SLP
-if(remove.trend==TRUE){
   # Remove linear trend of PSL anomalies
   psl.ECE=psl.ECE[order(targetdate),]
-  psl.ECE=psl.ECE[,dt.apsl.em := detrend(apsl.em),by=.(lat,lon)]
-  psl.ECE$apsl.em=NULL
-  setnames(psl.ECE,"dt.apsl.em","apsl.em")
-  
-  for (mmb in members) {
-    psl.ECE[ , eval(parse(text = paste0("apsl.",mmb, ":= detrend(apsl.",mmb,")"))),by=.(lat,lon)]
-    # eval(parse(text=paste0("psl.ECE$apsl.",mmb,"=NULL")))
-    
-  }
+  psl.ECE=psl.ECE[,dt.apsl := detrend(apsl),by=.(lat,lon)]
+  psl.ECE$apsl=NULL
+  setnames(psl.ECE,"dt.apsl","apsl")
 }
+
 
 #________________________________________
 # Perform seasonal averages              \______________________________________________
@@ -159,19 +169,11 @@ sst.ECE = sst.ECE[season == sel.season,]
 sst.ECE$s.year=year(sst.ECE$targetdate)
 sst.ECE[targetmonth==12,]$s.year=sst.ECE[targetmonth==12,]$s.year+1
 
-
 # Perform seasonal averages
-for (mmb in members) {
-  sst.ECE[ , eval(parse(text = paste0("s.asst.",mmb, ":=ave(asst.",mmb,")"))),by=.(s.year,lat,lon)]
-}
-sst.ECE = sst.ECE[,s.asst.em := ave(asst.em),by=.(s.year,lat,lon)]
-# Eliminate monthly data
-for (mmb in members) {
-  eval(parse(text = paste0("sst.ECE$asst.",mmb, "=","NULL" )))
-}
-sst.ECE$asst.em=NULL
+sst.ECE=sst.ECE[,s.asst := ave(asst),by=.(s.year,lat,lon)]
 
-# Clean DT
+# Eliminate monthly data & clean data table
+sst.ECE$asst=NULL
 sst.ECE$targetmonth=NULL
 sst.ECE$season=NULL
 
@@ -193,17 +195,10 @@ psl.ECE[targetmonth==12,]$s.year=psl.ECE[targetmonth==12,]$s.year+1
 
 
 # Perform seasonal averages
-for (mmb in members) {
-  psl.ECE[ , eval(parse(text = paste0("s.apsl.",mmb, ":=ave(apsl.",mmb,")"))),by=.(s.year,lat,lon)]
-}
-psl.ECE = psl.ECE[,s.apsl.em := ave(apsl.em),by=.(s.year,lat,lon)]
-# Eliminate monthly data
-for (mmb in members) {
-  eval(parse(text = paste0("psl.ECE$apsl.",mmb, "=","NULL" )))
-}
-psl.ECE$apsl.em=NULL
+psl.ECE=psl.ECE[,s.apsl := ave(apsl),by=.(s.year,lat,lon)]
 
-# Clean DT
+# Eliminate monthly data & clean data table
+psl.ECE$apsl=NULL
 psl.ECE$targetmonth=NULL
 psl.ECE$season=NULL
 
@@ -214,85 +209,50 @@ psl.ECE = unique(psl.ECE, by=c("lat","lon","s.year"))
 #________________________________________
 # Perform ny-year rolling means           \______________________________________________
 
-# SST
 if(roll.years==TRUE){
-  
+  # SST
+  sst.ECE=sst.ECE[order(targetdate),]
   alig="left" #to be used for the rolling mean, using for time=t data between t and t+3
   
   sst.ECE=sst.ECE[, s.year.roll := frollmean(s.year,n=ny,align=alig),by=.(lat,lon)]
-  sst.ECE=sst.ECE[, s.asst.em.roll := frollmean(s.asst.em,n=ny,align=alig),by=.(lat,lon)]
-  for (mmb in members) {
-    sst.ECE=sst.ECE[, eval(parse(text = paste0("s.asst.",mmb,".roll := frollmean(s.asst.",mmb,",n=ny,align=alig)"))),by=.(lat,lon)]
-  }
+  sst.ECE=sst.ECE[, s.asst.roll := frollmean(s.asst,n=ny,align=alig),by=.(lat,lon)]
   
   # Remove rows which could not be used to compute the rolling mean
   sst.ECE = sst.ECE[!is.na(s.year.roll),]
-  # Eliminate previous variables and rearrange
-  # sst.ECE$s.year=NULL
-  # setnames(sst.ECE,"s.year.roll","s.year")
-  sst.ECE$s.asst.em=NULL
-  setnames(sst.ECE,"s.asst.em.roll","s.asst.em")
-  for (mmb in members) {
-    eval(parse(text = paste0("sst.ECE$s.asst.",mmb,"=NULL")))
-    oldname=paste0("s.asst.",mmb,".roll")
-    newname=paste0("s.asst.",mmb)
-    
-    eval(parse(text = paste0("setnames(sst.ECE,oldname,newname)")))
-    
-  }
   
-}
-
-# SLP
-if(roll.years==TRUE){
+  # Rearrange variable names
+  sst.ECE$s.asst=NULL
+  setnames(sst.ECE,"s.asst.roll","asst")
   
+  #PSL
+  psl.ECE=psl.ECE[order(targetdate),]
   alig="left" #to be used for the rolling mean, using for time=t data between t and t+3
   
   psl.ECE=psl.ECE[, s.year.roll := frollmean(s.year,n=ny,align=alig),by=.(lat,lon)]
-  psl.ECE=psl.ECE[, s.apsl.em.roll := frollmean(s.apsl.em,n=ny,align=alig),by=.(lat,lon)]
-  for (mmb in members) {
-    psl.ECE=psl.ECE[, eval(parse(text = paste0("s.apsl.",mmb,".roll := frollmean(s.apsl.",mmb,",n=ny,align=alig)"))),by=.(lat,lon)]
-  }
+  psl.ECE=psl.ECE[, s.apsl.roll := frollmean(s.apsl,n=ny,align=alig),by=.(lat,lon)]
   
   # Remove rows which could not be used to compute the rolling mean
   psl.ECE = psl.ECE[!is.na(s.year.roll),]
-  # Eliminate previous variables and rearrange
-  # psl.ECE$s.year=NULL
-  # setnames(psl.ECE,"s.year.roll","s.year")
-  psl.ECE$s.apsl.em=NULL
-  setnames(psl.ECE,"s.apsl.em.roll","s.apsl.em")
-  for (mmb in members) {
-    eval(parse(text = paste0("psl.ECE$s.apsl.",mmb,"=NULL")))
-    oldname=paste0("s.apsl.",mmb,".roll")
-    newname=paste0("s.apsl.",mmb)
-    
-    eval(parse(text = paste0("setnames(psl.ECE,oldname,newname)")))
-    
-  }
   
+  # Rearrange variable names
+  psl.ECE$s.apsl=NULL
+  setnames(psl.ECE,"s.apsl.roll","apsl")
+}else{
+  setnames(sst.ECE,"s.asst","asst")
+  setnames(psl.ECE,"s.apsl","apsl")
 }
 
 #________________________________________
 # Apply latitude weight to the anomalies \______________________________________________
 
-# SST
-for (mmb in members) {
-  eval(parse(text = paste0("sst.ECE$s.asst.",mmb, "=","sst.ECE$s.asst.",mmb,"*sqrt(cos(sst.ECE$lat*pi/180))" )))
-}
-sst.ECE$s.asst.em=sst.ECE$s.asst.em*sqrt(cos(sst.ECE$lat*pi/180))
-
-# SLP
-for (mmb in members) {
-  eval(parse(text = paste0("psl.ECE$s.apsl.",mmb, "=","psl.ECE$s.apsl.",mmb,"*sqrt(cos(psl.ECE$lat*pi/180))" )))
-}
-psl.ECE$s.apsl.em=psl.ECE$s.apsl.em*sqrt(cos(psl.ECE$lat*pi/180))
-
+sst.ECE$asst=sst.ECE$asst*sqrt(cos(sst.ECE$lat*pi/180))
+psl.ECE$apsl=psl.ECE$apsl*sqrt(cos(psl.ECE$lat*pi/180))
 
 #________________________________________
 # Remove NA values                       \______________________________________________
 
-sst.ECE = sst.ECE[!is.na(s.asst.em),]
-psl.ECE = psl.ECE[!is.na(s.apsl.em),]
+sst.ECE = sst.ECE[!is.na(asst),]
+psl.ECE = psl.ECE[!is.na(apsl),]
 
 ##############################################
 #
@@ -306,8 +266,8 @@ psl.ECE = psl.ECE[!is.na(s.apsl.em),]
 setnames(sst.ECE,"targetdate","date")
 setnames(psl.ECE,"targetdate","date")
 
-S = makematrix(sst.ECE,"s.asst.em ~ lat + lon | date")
-P = makematrix(psl.ECE,"s.apsl.em ~ lat + lon | date")
+S = makematrix(sst.ECE,"asst ~ lat + lon | date")
+P = makematrix(psl.ECE,"apsl ~ lat + lon | date")
 # Perform SVD
 
 nmodes=3
@@ -347,8 +307,8 @@ rm(A,B,C,SV,SV2,S,P)
 psl.ECE = merge(psl.ECE,exp.coef[,.(date,ec.slp.1,ec.slp.2,ec.slp.3)],by="date")
 sst.ECE = merge(sst.ECE,exp.coef[,.(date,ec.sst.1,ec.sst.2,ec.sst.3)],by="date")
 
-psl.ECE = psl.ECE[,.(date,s.apsl.em,ec.slp.1,ec.slp.2,ec.slp.3,hcm.1 = cor(s.apsl.em,ec.slp.1),hcm.2 = cor(s.apsl.em,ec.slp.2),hcm.3 = cor(s.apsl.em,ec.slp.3)),by=.(lat,lon)]
-sst.ECE = sst.ECE[,.(date,s.asst.em,ec.sst.1,ec.sst.2,ec.sst.3,hcm.1 = cor(s.asst.em,ec.sst.1),hcm.2 = cor(s.asst.em,ec.sst.2),hcm.3 = cor(s.asst.em,ec.sst.3)),by=.(lat,lon)]
+psl.ECE = psl.ECE[,.(date,apsl,ec.slp.1,ec.slp.2,ec.slp.3,hcm.1 = cor(apsl,ec.slp.1),hcm.2 = cor(apsl,ec.slp.2),hcm.3 = cor(apsl,ec.slp.3)),by=.(lat,lon)]
+sst.ECE = sst.ECE[,.(date,asst,ec.sst.1,ec.sst.2,ec.sst.3,hcm.1 = cor(asst,ec.sst.1),hcm.2 = cor(asst,ec.sst.2),hcm.3 = cor(asst,ec.sst.3)),by=.(lat,lon)]
 
 #________________________________________
 # Plotting and saving                    \______________________________________________
@@ -360,23 +320,17 @@ map.world <- map_data ("world2", wrap = c(-180,180))
 
 bmin=-0.8
 bmax=0.8
-bstep=0.1
 bbreaks.contours=c(-99,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,99)
-bbreaks.cbar=c(-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7)
-labels.cbar=as.character(bbreaks.cbar)
-labels.cbar[1]=""
-labels.cbar[length(labels.cbar)]=""
-
 
 # Need to select a single date as values are repeated by date
 g1 = ggplot() +
-  geom_contour_fill(data=sst.ECE[date==sst.ECE$date[1]],aes(lon, lat, z = hcm.1),breaks=bbreaks.contours,na.fill=TRUE)+
+  geom_contour_fill(data=sst.ECE[date==sst.ECE$date[1]],aes(lon, lat, z = hcm.1, fill=stat(level)),breaks=bbreaks.contours,na.fill=TRUE)+
   scale_fill_distiller(name="SST",palette="RdBu",direction=-1,
-                       breaks=bbreaks.cbar,
                        limits=c(bmin,bmax),
-                       guide = guide_colorstrip(),
-                       labels=labels.cbar,
+                       super = ScaleDiscretised,
+                       guide = guide_colorsteps(),
                        oob  = scales::squish)+
+  guides(fill = guide_colourbar(barwidth = 0.9, barheight = 10))+
   new_scale_color() +
   geom_contour(data=psl.ECE[date==psl.ECE$date[1]],aes(lon, lat, z = hcm.1),breaks=seq(-1,1,0.1),color="black",size=0.25)+
   geom_text_contour(data=psl.ECE[date==psl.ECE$date[1]],aes(lon, lat, z = hcm.1),breaks=seq(-1,1,0.1),stroke = 0.1,min.size = 10)+

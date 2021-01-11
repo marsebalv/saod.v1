@@ -102,63 +102,61 @@ remove.trend=TRUE
 members=c(1,2,4,5,6,7,8,9,10,11,12,13,14,15,16)
 ######################################################
 
+# Rearrange data using number of member as variable
+# STT
+# rename according to member
+old = c("asst.1","asst.2","asst.4","asst.5","asst.6","asst.7","asst.8","asst.9","asst.10","asst.11","asst.12","asst.13","asst.14","asst.15","asst.16","asst.em")
+new = c("1","2","4","5","6","7","8","9","10","11","12","13","14","15","16","99")
+setnames(sst.ECE,old,new)
+# Melt data table for easy operation
+sst.ECE=melt(sst.ECE,id=c("lat","lon","targetdate","targetmonth"),variable.name="member",value.name="asst")
+
+sst.ECE$member=as.numeric(as.character(sst.ECE$member))
+
+# SLP
+# rename according to member
+old = c("apsl.1","apsl.2","apsl.4","apsl.5","apsl.6","apsl.7","apsl.8","apsl.9","apsl.10","apsl.11","apsl.12","apsl.13","apsl.14","apsl.15","apsl.16","apsl.em")
+setnames(psl.ECE,old,new)
+# Melt data table for easy operation
+psl.ECE=melt(psl.ECE,id=c("lat","lon","targetdate","targetmonth"),variable.name="member",value.name="apsl")  
+
+psl.ECE$member=as.numeric(as.character(psl.ECE$member))
+
+# Retain only the ensemble mean
+sst.ECE=sst.ECE[member==99,]
+psl.ECE=psl.ECE[member==99,]
+
+sst.ECE$member=NULL
+psl.ECE$member=NULL
+
 #________________________________________
 # Linear trend removal while monthly     \______________________________________________
 
-# For now, only for ensemble mean respect to itself
-
-# SST
 if(remove.trend==TRUE){
   # Remove linear trend of SST anomalies
   sst.ECE=sst.ECE[order(targetdate),]
-  sst.ECE=sst.ECE[,dt.asst.em := detrend(asst.em),by=.(lat,lon)]
-  sst.ECE$asst.em=NULL
-  setnames(sst.ECE,"dt.asst.em","asst.em")
+  sst.ECE=sst.ECE[,dt.asst := detrend(asst),by=.(lat,lon)]
+  sst.ECE$asst=NULL
+  setnames(sst.ECE,"dt.asst","asst")
   
-  for (mmb in members) {
-    sst.ECE[ , eval(parse(text = paste0("asst.",mmb, ":= detrend(asst.",mmb,")"))),by=.(lat,lon)]
-    # eval(parse(text=paste0("sst.ECE$asst.",mmb,"=NULL")))
-    
-  }
-}
-
-# SLP
-if(remove.trend==TRUE){
   # Remove linear trend of PSL anomalies
   psl.ECE=psl.ECE[order(targetdate),]
-  psl.ECE=psl.ECE[,dt.apsl.em := detrend(apsl.em),by=.(lat,lon)]
-  psl.ECE$apsl.em=NULL
-  setnames(psl.ECE,"dt.apsl.em","apsl.em")
-  
-  for (mmb in members) {
-    psl.ECE[ , eval(parse(text = paste0("apsl.",mmb, ":= detrend(apsl.",mmb,")"))),by=.(lat,lon)]
-    # eval(parse(text=paste0("psl.ECE$apsl.",mmb,"=NULL")))
-    
-  }
+  psl.ECE=psl.ECE[,dt.apsl := detrend(apsl),by=.(lat,lon)]
+  psl.ECE$apsl=NULL
+  setnames(psl.ECE,"dt.apsl","apsl")
 }
-
 
 #________________________________________
 # Apply latitude weight to the anomalies \______________________________________________
 
-# SST
-for (mmb in members) {
-  eval(parse(text = paste0("sst.ECE$asst.",mmb, "=","sst.ECE$asst.",mmb,"*sqrt(cos(sst.ECE$lat*pi/180))" )))
-}
-sst.ECE$asst.em=sst.ECE$asst.em*sqrt(cos(sst.ECE$lat*pi/180))
-
-# SLP
-for (mmb in members) {
-  eval(parse(text = paste0("psl.ECE$apsl.",mmb, "=","psl.ECE$apsl.",mmb,"*sqrt(cos(psl.ECE$lat*pi/180))" )))
-}
-psl.ECE$apsl.em=psl.ECE$apsl.em*sqrt(cos(psl.ECE$lat*pi/180))
-
+sst.ECE$asst=sst.ECE$asst*sqrt(cos(sst.ECE$lat*pi/180))
+psl.ECE$apsl=psl.ECE$apsl*sqrt(cos(psl.ECE$lat*pi/180))
 
 #________________________________________
 # Remove NA values                       \______________________________________________
 
-sst.ECE = sst.ECE[!is.na(asst.em),]
-psl.ECE = psl.ECE[!is.na(apsl.em),]
+sst.ECE = sst.ECE[!is.na(asst),]
+psl.ECE = psl.ECE[!is.na(apsl),]
 
 ##############################################
 #
@@ -172,8 +170,8 @@ psl.ECE = psl.ECE[!is.na(apsl.em),]
 setnames(sst.ECE,"targetdate","date")
 setnames(psl.ECE,"targetdate","date")
 
-S = makematrix(sst.ECE,"asst.em ~ lat + lon | date")
-P = makematrix(psl.ECE,"apsl.em ~ lat + lon | date")
+S = makematrix(sst.ECE,"asst ~ lat + lon | date")
+P = makematrix(psl.ECE,"apsl ~ lat + lon | date")
 # Perform SVD
 
 nmodes=3
@@ -203,7 +201,7 @@ SCF = SCF[1:nm] * 100
 exp.coef = data.table(date = unique(sst.ECE$date),ec.sst.1=A[,1],ec.sst.2=A[,2],ec.sst.3=A[,3],ec.slp.1=B[,1],ec.slp.2=B[,2],ec.slp.3=B[,3])
 
 # Create data table with smoothed expansion coefficients and normalize respect to sd
- exp.coef.norm = data.table(date = unique(sst.ECE$date),ec.sst.1=rollmean(A[,1],13,align="center",fill=NA),ec.sst.2=rollmean(A[,2],13,align="center",fill=NA),ec.sst.3=rollmean(A[,3],13,align="center",fill=NA),ec.slp.1=rollmean(B[,1],13,align="center",fill=NA),ec.slp.2=rollmean(B[,2],13,align="center",fill=NA),ec.slp.3=rollmean(B[,3],13,align="center",fill=NA))
+exp.coef.norm = data.table(date = unique(sst.ECE$date),ec.sst.1=rollmean(A[,1],13,align="center",fill=NA),ec.sst.2=rollmean(A[,2],13,align="center",fill=NA),ec.sst.3=rollmean(A[,3],13,align="center",fill=NA),ec.slp.1=rollmean(B[,1],13,align="center",fill=NA),ec.slp.2=rollmean(B[,2],13,align="center",fill=NA),ec.slp.3=rollmean(B[,3],13,align="center",fill=NA))
 #exp.coef.norm = data.table(date = unique(sst.ECE$date),ec.sst.1=A[,1],ec.sst.2=A[,2],ec.sst.3=A[,3],ec.slp.1=B[,1],ec.slp.2=B[,2],ec.slp.3=B[,3])
 exp.coef.norm = exp.coef.norm[,.(date,ec.sst.1=ec.sst.1/sd(ec.sst.1,na.rm=TRUE),ec.sst.2=ec.sst.2/sd(ec.sst.2,na.rm=TRUE),ec.sst.3=ec.sst.3/sd(ec.sst.3,na.rm=TRUE),ec.slp.1=ec.slp.1/sd(ec.slp.1,na.rm=TRUE),ec.slp.2=ec.slp.2/sd(ec.slp.2,na.rm=TRUE),ec.slp.3=ec.slp.3/sd(ec.slp.3,na.rm=TRUE))]
 
@@ -213,8 +211,8 @@ rm(A,B,C,SV,SV2,S,P)
 psl.ECE = merge(psl.ECE,exp.coef[,.(date,ec.slp.1,ec.slp.2,ec.slp.3)],by="date")
 sst.ECE = merge(sst.ECE,exp.coef[,.(date,ec.sst.1,ec.sst.2,ec.sst.3)],by="date")
 
-psl.ECE = psl.ECE[,.(date,apsl.em,ec.slp.1,ec.slp.2,ec.slp.3,hcm.1 = cor(apsl.em,ec.slp.1),hcm.2 = cor(apsl.em,ec.slp.2),hcm.3 = cor(apsl.em,ec.slp.3)),by=.(lat,lon)]
-sst.ECE = sst.ECE[,.(date,asst.em,ec.sst.1,ec.sst.2,ec.sst.3,hcm.1 = cor(asst.em,ec.sst.1),hcm.2 = cor(asst.em,ec.sst.2),hcm.3 = cor(asst.em,ec.sst.3)),by=.(lat,lon)]
+psl.ECE = psl.ECE[,.(date,apsl,ec.slp.1,ec.slp.2,ec.slp.3,hcm.1 = cor(apsl,ec.slp.1),hcm.2 = cor(apsl,ec.slp.2),hcm.3 = cor(apsl,ec.slp.3)),by=.(lat,lon)]
+sst.ECE = sst.ECE[,.(date,asst,ec.sst.1,ec.sst.2,ec.sst.3,hcm.1 = cor(asst,ec.sst.1),hcm.2 = cor(asst,ec.sst.2),hcm.3 = cor(asst,ec.sst.3)),by=.(lat,lon)]
 
 #________________________________________
 # Plotting and saving                    \______________________________________________
@@ -226,23 +224,17 @@ map.world <- map_data ("world2", wrap = c(-180,180))
 
 bmin=-0.9
 bmax=0.9
-bstep=0.1
 bbreaks.contours=c(-99,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,99)
-bbreaks.cbar=c(-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9)
-labels.cbar=as.character(bbreaks.cbar)
-labels.cbar[1]=""
-labels.cbar[length(labels.cbar)]=""
-
 
 # Need to select a single date as values are repeated by date
 g1 = ggplot() +
-  geom_contour_fill(data=sst.ECE[date==sst.ECE$date[1]],aes(lon, lat, z = hcm.1),breaks=bbreaks.contours,na.fill=TRUE)+
+  geom_contour_fill(data=sst.ECE[date==sst.ECE$date[1]],aes(lon, lat, z = hcm.1, fill=stat(level)),breaks=bbreaks.contours,na.fill=TRUE)+
   scale_fill_distiller(name="SST",palette="RdBu",direction=-1,
-                       breaks=bbreaks.cbar,
                        limits=c(bmin,bmax),
-                       guide = guide_colorstrip(),
-                       labels=labels.cbar,
+                       super = ScaleDiscretised,
+                       guide = guide_colorsteps(),
                        oob  = scales::squish)+
+  guides(fill = guide_colourbar(barwidth = 0.9, barheight = 10))+
   new_scale_color() +
   geom_contour(data=psl.ECE[date==psl.ECE$date[1]],aes(lon, lat, z = hcm.1),breaks=seq(-1,1,0.1),color="black",size=0.25)+
   geom_text_contour(data=psl.ECE[date==psl.ECE$date[1]],aes(lon, lat, z = hcm.1),breaks=seq(-1,1,0.1),stroke = 0.1,min.size = 10)+
