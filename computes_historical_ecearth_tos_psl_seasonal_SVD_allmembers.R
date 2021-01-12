@@ -98,14 +98,24 @@
   # Remove trend? TRUE or FALSE
   remove.trend=TRUE
   # Select season
-  sel.season="JJA"
+  sel.season="DJF"
   # Rolling years
   roll.years=FALSE
   # number of years to roll
   ny=4
   # Members being used
   members=c(1,2,4,5,6,7,8,9,10,11,12,13,14,15,16)
+  # Period selection
+  start.date=as.Date("1949-01-01")
+  end.date=as.Date("1978-12-16")
   ######################################################
+  
+  # Select range of years
+  st.yr=year(start.date)
+  ed.yr=year(end.date)
+  
+  sst.ECE=sst.ECE[targetdate>=start.date & targetdate<end.date,]
+  psl.ECE=psl.ECE[targetdate>=start.date & targetdate<end.date,]
   
   # Rearrange data using number of member as variable
   # STT
@@ -309,8 +319,8 @@
   # Rearrange data and separate by member, using the date transformation inversed
   exp.coef$member=1
   # Last real date is "2014-12-16"
-  lastdate="2014-12-16"
-  exp.coef[date>(as.Date(lastdate) %m+% years(1*100)),]$member=2
+  lastdate=end.date
+  exp.coef[date>(lastdate %m+% years(1*100)),]$member=2
   for(i in c(2,4,5,6,7,8,9,10,11,12,13,14,15,16)){
     exp.coef[eval(parse(text=paste0("date>(as.Date(lastdate) %m+% years(",i,"*100))"))),]$member=(i+1)
   }
@@ -438,24 +448,24 @@ g3 <- ggplot(data=exp.coef.separated, aes(x=ec1.sst.norm, y=ec1.slp.norm)) +
 if(remove.trend==TRUE){
   if(roll.years==TRUE){
     fig <- grid.arrange(g1,g2,g3, layout_matrix=rbind(c(1,1,4),c(2,2,3)),top = textGrob(paste0(sel.season,", historical: SVD of SST-SLP anomalies (no trend, weighted) EC-Earth3. Rolling year avg: ",ny),gp=gpar(fontsize=13,font=3)))
-    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_SVD_SST_SLP_weighted_notrend_allmembers_roll_",ny,"yrs.png"),plot=fig,width = 12, height = 8)
+    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_SVD_SST_SLP_weighted_notrend_allmembers_roll_",ny,"yrs_",st.yr,"-",ed.yr,".png"),plot=fig,width = 12, height = 8)
     
   }else{
     
     fig <- grid.arrange(g1,g2,g3, layout_matrix=rbind(c(1,1,4),c(2,2,3)),top = textGrob(paste0(sel.season,", historical: SVD of SST-SLP anomalies (no trend, weighted) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
-    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_SVD_SST_SLP_weighted_notrend_allmembers.png"),plot=fig,width = 12, height = 8)
+    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_SVD_SST_SLP_weighted_notrend_allmembers_",st.yr,"-",ed.yr,".png"),plot=fig,width = 12, height = 8)
     
   } #endif roll
   
 }else{ # No trend
   if(roll.years==TRUE){
     fig <- grid.arrange(g1,g2,g3, layout_matrix=rbind(c(1,1,4),c(2,2,3)),top = textGrob(paste0(sel.season,", historical: SVD of SST-SLP anomalies (weighted) EC-Earth3. Rolling year avg: ",ny),gp=gpar(fontsize=13,font=3)))
-    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_SVD_SST_SLP_weighted_allmembers_roll_",ny,"yrs.png"),plot=fig,width = 12, height = 8)
+    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_SVD_SST_SLP_weighted_allmembers_roll_",ny,"yrs_",st.yr,"-",ed.yr,".png"),plot=fig,width = 12, height = 8)
     
   }else{
     
     fig <- grid.arrange(g1,g2,g3, layout_matrix=rbind(c(1,1,4),c(2,2,3)),top = textGrob(paste0(sel.season,", historical: SVD of SST-SLP anomalies ( weighted) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
-    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_SVD_SST_SLP_weighted_allmembers.png"),plot=fig,width = 12, height = 8)
+    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_SVD_SST_SLP_weighted_allmembers_",st.yr,"-",ed.yr,".png"),plot=fig,width = 12, height = 8)
     
   } #endif roll
   
