@@ -91,14 +91,14 @@
   #_________________________________________
   # Loads data                              \_____________________________________________
   
-  load(file="/home/maralv/data/asst.ECEarth.hist.19492014.RData")
-  load(file="/home/maralv/data/apsl.ECEarth.hist.19492014.RData")
+  load(file="/home/maralv/data/asst.ECEarth.hist.18501948.RData")
+  load(file="/home/maralv/data/apsl.ECEarth.hist.18501948.RData")
   
   #################### Settings ########################
   # Remove trend? TRUE or FALSE
-  remove.trend=FALSE
+  remove.trend=TRUE
   # Select season
-  sel.season="JJA"
+  sel.season="DJF"
   # Rolling years
   roll.years=FALSE
   # number of years to roll
@@ -106,8 +106,8 @@
   # Members being used
   members=c(1,2,4,5,6,7,8,9,10,11,12,13,14,15,16)
   # Period selection
-  start.date=as.Date("1949-01-01")
-  end.date=as.Date("2014-12-16")
+  start.date=as.Date("1850-01-01")
+  end.date=as.Date("1948-12-16")
   ######################################################
   
   # Select range of years
@@ -414,7 +414,6 @@ bmax=0.9
 # bstep=0.1
 bbreaks.contours=c(-99,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,99)
 breaks.dates=exp.coef.separated[member==1,]$date
-limits.EC=2.5
 
 # Need to select a single date as values are repeated by date
 g1 = ggplot() +
@@ -454,7 +453,7 @@ g2 = ggplot() +
   
   scale_x_date(breaks=breaks.dates[seq(1,length(breaks.dates),4)],date_labels = "%Y",expand = c(0, 0))+
   theme(text = element_text(size=14))+
-  scale_y_continuous(breaks = seq(ceiling(-limits.EC),floor(limits.EC),1),limits=c(-limits.EC,limits.EC),expand = c(0, 0.))+
+  scale_y_continuous(breaks = seq(-3,3,1),limits=c(-3,3),expand = c(0., 0.))+
   theme(axis.text.x = element_text(angle = 45, hjust=1))+
   xlab("Date")+ylab("EC1 (normalized units)")+
   ggtitle(paste0("EC1 SST (pink), SLP (green). r=",as.character(round(cor(exp.coef$ec1.sst,exp.coef$ec1.slp,use = "pairwise.complete.obs"),2))," for raw EC. Shading: [P13,P86] interval (9 less extreme mmbs)"))+

@@ -1,4 +1,4 @@
-# This script computes the SVD of sst&slp in the historical EC-Earth3 runs
+# This script computes the SVD of sst&slp in the control EC-Earth3 run
 #
 # M. Alvarez (2020)
 #--------------------------------------------------------------------------------
@@ -91,76 +91,45 @@ makematrix <- function(data1,f){
 #_________________________________________
 # Loads data                              \_____________________________________________
 
-load(file="/home/maralv/data/asst.ECEarth.hist.19492014.RData")
-load(file="/home/maralv/data/apsl.ECEarth.hist.19492014.RData")
+load(file="/home/maralv/data/asst.ECEarth.control.18502849.RData")
+load(file="/home/maralv/data/apsl.ECEarth.control.18502849.RData")
 
 #################### Settings ########################
 # Remove trend? TRUE or FALSE
-remove.trend=TRUE
+remove.trend=FALSE
 # Select season
-sel.season="JJA"
+sel.season="DJF"
 # Rolling years
 roll.years=FALSE
 # number of years to roll
 ny=4
-# Members being used
-members=c(1,2,4,5,6,7,8,9,10,11,12,13,14,15,16)
 # Period selection
-start.date=as.Date("1949-12-01")
-end.date=as.Date("2014-12-16")
+start.date=as.Date("1850-12-01")
+end.date=as.Date("2849-12-16")
 ######################################################
 # Select range of years
 st.yr=year(start.date)
 ed.yr=year(end.date)
 
-sst.ECE=sst.ECE[targetdate>=start.date & targetdate<end.date,]
-psl.ECE=psl.ECE[targetdate>=start.date & targetdate<end.date,]
-
-
-# Rearrange data using number of member as variable
-# STT
-# rename according to member
-old = c("asst.1","asst.2","asst.4","asst.5","asst.6","asst.7","asst.8","asst.9","asst.10","asst.11","asst.12","asst.13","asst.14","asst.15","asst.16","asst.em")
-new = c("1","2","4","5","6","7","8","9","10","11","12","13","14","15","16","99")
-setnames(sst.ECE,old,new)
-# Melt data table for easy operation
-sst.ECE=melt(sst.ECE,id=c("lat","lon","targetdate","targetmonth"),variable.name="member",value.name="asst")
-
-sst.ECE$member=as.numeric(as.character(sst.ECE$member))
-
-# SLP
-# rename according to member
-old = c("apsl.1","apsl.2","apsl.4","apsl.5","apsl.6","apsl.7","apsl.8","apsl.9","apsl.10","apsl.11","apsl.12","apsl.13","apsl.14","apsl.15","apsl.16","apsl.em")
-setnames(psl.ECE,old,new)
-# Melt data table for easy operation
-psl.ECE=melt(psl.ECE,id=c("lat","lon","targetdate","targetmonth"),variable.name="member",value.name="apsl")  
-
-psl.ECE$member=as.numeric(as.character(psl.ECE$member))
-
-# Retain only the ensemble mean
-sst.ECE=sst.ECE[member==99,]
-psl.ECE=psl.ECE[member==99,]
-
-sst.ECE$member=NULL
-psl.ECE$member=NULL
+sst.ECE=sst.ECE[date>=start.date & date<end.date,]
+psl.ECE=psl.ECE[date>=start.date & date<end.date,]
 
 #________________________________________
 # Linear trend removal while monthly     \______________________________________________
 
 if(remove.trend==TRUE){
   # Remove linear trend of SST anomalies
-  sst.ECE=sst.ECE[order(targetdate),]
+  sst.ECE=sst.ECE[order(date),]
   sst.ECE=sst.ECE[,dt.asst := detrend(asst),by=.(lat,lon)]
   sst.ECE$asst=NULL
   setnames(sst.ECE,"dt.asst","asst")
   
   # Remove linear trend of PSL anomalies
-  psl.ECE=psl.ECE[order(targetdate),]
+  psl.ECE=psl.ECE[order(date),]
   psl.ECE=psl.ECE[,dt.apsl := detrend(apsl),by=.(lat,lon)]
   psl.ECE$apsl=NULL
   setnames(psl.ECE,"dt.apsl","apsl")
 }
-
 
 #________________________________________
 # Perform seasonal averages              \______________________________________________
@@ -168,23 +137,23 @@ if(remove.trend==TRUE){
 # SST
 
 # Define seasons
-sst.ECE = sst.ECE[targetmonth==12 | targetmonth==1 | targetmonth==2, season := "DJF" ]
-sst.ECE = sst.ECE[targetmonth==3 | targetmonth==4 | targetmonth==5, season := "MAM" ]
-sst.ECE = sst.ECE[targetmonth==6 | targetmonth==7 | targetmonth==8, season := "JJA" ]
-sst.ECE = sst.ECE[targetmonth==9 | targetmonth==10 | targetmonth==11, season := "SON" ]
+sst.ECE = sst.ECE[month==12 | month==1 | month==2, season := "DJF" ]
+sst.ECE = sst.ECE[month==3 | month==4 | month==5, season := "MAM" ]
+sst.ECE = sst.ECE[month==6 | month==7 | month==8, season := "JJA" ]
+sst.ECE = sst.ECE[month==9 | month==10 | month==11, season := "SON" ]
 
 sst.ECE = sst.ECE[season == sel.season,]
 
 # Add year for season
-sst.ECE$s.year=year(sst.ECE$targetdate)
-sst.ECE[targetmonth==12,]$s.year=sst.ECE[targetmonth==12,]$s.year+1
+sst.ECE$s.year=year(sst.ECE$date)
+sst.ECE[month==12,]$s.year=sst.ECE[month==12,]$s.year+1
 
 # Perform seasonal averages
 sst.ECE=sst.ECE[,s.asst := ave(asst),by=.(s.year,lat,lon)]
 
 # Eliminate monthly data & clean data table
 sst.ECE$asst=NULL
-sst.ECE$targetmonth=NULL
+sst.ECE$month=NULL
 sst.ECE$season=NULL
 
 # Remove repeated rows
@@ -205,16 +174,16 @@ setnames(sst.ECE,"sa.asst","s.asst")
 
 # SLP
 # Define seasons
-psl.ECE = psl.ECE[targetmonth==12 | targetmonth==1 | targetmonth==2, season := "DJF" ]
-psl.ECE = psl.ECE[targetmonth==3 | targetmonth==4 | targetmonth==5, season := "MAM" ]
-psl.ECE = psl.ECE[targetmonth==6 | targetmonth==7 | targetmonth==8, season := "JJA" ]
-psl.ECE = psl.ECE[targetmonth==9 | targetmonth==10 | targetmonth==11, season := "SON" ]
+psl.ECE = psl.ECE[month==12 | month==1 | month==2, season := "DJF" ]
+psl.ECE = psl.ECE[month==3 | month==4 | month==5, season := "MAM" ]
+psl.ECE = psl.ECE[month==6 | month==7 | month==8, season := "JJA" ]
+psl.ECE = psl.ECE[month==9 | month==10 | month==11, season := "SON" ]
 
 psl.ECE = psl.ECE[season == sel.season,]
 
 # Add year for season
-psl.ECE$s.year=year(psl.ECE$targetdate)
-psl.ECE[targetmonth==12,]$s.year=psl.ECE[targetmonth==12,]$s.year+1
+psl.ECE$s.year=year(psl.ECE$date)
+psl.ECE[month==12,]$s.year=psl.ECE[month==12,]$s.year+1
 
 
 # Perform seasonal averages
@@ -222,7 +191,7 @@ psl.ECE=psl.ECE[,s.apsl := ave(apsl),by=.(s.year,lat,lon)]
 
 # Eliminate monthly data & clean data table
 psl.ECE$apsl=NULL
-psl.ECE$targetmonth=NULL
+psl.ECE$month=NULL
 psl.ECE$season=NULL
 
 # Remove repeated rows
@@ -241,13 +210,12 @@ psl.ECE$s.apsl=NULL
 psl.ECE$s.clim=NULL
 setnames(psl.ECE,"sa.apsl","s.apsl")
 
-
 #________________________________________
 # Perform ny-year rolling means           \______________________________________________
 
 if(roll.years==TRUE){
   # SST
-  sst.ECE=sst.ECE[order(targetdate),]
+  sst.ECE=sst.ECE[order(date),]
   alig="left" #to be used for the rolling mean, using for time=t data between t and t+3
   
   sst.ECE=sst.ECE[, s.year.roll := frollmean(s.year,n=ny,align=alig),by=.(lat,lon)]
@@ -261,7 +229,7 @@ if(roll.years==TRUE){
   setnames(sst.ECE,"s.asst.roll","asst")
   
   #PSL
-  psl.ECE=psl.ECE[order(targetdate),]
+  psl.ECE=psl.ECE[order(date),]
   alig="left" #to be used for the rolling mean, using for time=t data between t and t+3
   
   psl.ECE=psl.ECE[, s.year.roll := frollmean(s.year,n=ny,align=alig),by=.(lat,lon)]
@@ -297,10 +265,6 @@ psl.ECE = psl.ECE[!is.na(apsl),]
 ##############################################
 
 # Change data to rows=space, columns=time
-
-# Rename targetdate
-setnames(sst.ECE,"targetdate","date")
-setnames(psl.ECE,"targetdate","date")
 
 S = makematrix(sst.ECE,"asst ~ lat + lon | date")
 P = makematrix(psl.ECE,"apsl ~ lat + lon | date")
@@ -354,10 +318,9 @@ psl.ECE[lon>180]$lon=psl.ECE[lon>180]$lon-360
 sst.ECE[lon>180]$lon=sst.ECE[lon>180]$lon-360
 map.world <- map_data ("world2", wrap = c(-180,180))
 
-bmin=-0.9
-bmax=0.9
-bbreaks.contours=c(-99,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,99)
-limits.EC=3.5
+bmin=-0.8
+bmax=0.8
+bbreaks.contours=c(-99,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,99)
 
 # Need to select a single date as values are repeated by date
 g1 = ggplot() +
@@ -381,9 +344,9 @@ g2 = ggplot() +
   theme_bw()+
   geom_line(data=exp.coef.norm,aes(date, ec.sst.1),col="red")+
   geom_line(data=exp.coef.norm,aes(date, ec.slp.1),col="black")+
-  scale_x_date(breaks=exp.coef.norm$date[seq(1,length(exp.coef.norm$date),5)],date_labels = "%Y",expand = c(0, 0))+
+  scale_x_date(breaks=exp.coef.norm$date[seq(1,length(exp.coef.norm$date),30)],date_labels = "%Y",expand = c(0, 0))+
   theme(text = element_text(size=14))+
-  scale_y_continuous(breaks = seq(ceiling(-limits.EC),floor(limits.EC),1),limits=c(-limits.EC,limits.EC),expand = c(0, 0.))+
+  scale_y_continuous(breaks = seq(-5,5,1),limits=c(-6,6),expand = c(0., 0.))+
   theme(axis.text.x = element_text(angle = 45, hjust=1))+
   xlab("Date")+ylab("EC1 (normalized units)")+
   ggtitle(paste0("Normalized Expansion Coefficients: SST (red), SLP (black). r=",as.character(round(cor(exp.coef$ec.sst.1,exp.coef$ec.slp.1,use = "pairwise.complete.obs"),2))," for raw EC"))+
@@ -393,24 +356,24 @@ g2 = ggplot() +
 
 if(remove.trend==TRUE){
   if(roll.years==TRUE){
-    fig <- grid.arrange(g1,g2, ncol = 1,top = textGrob(paste0(sel.season," , historical: SVD of SST-SLP anomalies (no trend, rolling ",ny," years, weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
-    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_SVD_SST_SLP_weighted_notrend_ensmean_rollingyears_",ny,"_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
+    fig <- grid.arrange(g1,g2, ncol = 1,top = textGrob(paste0(sel.season," , control: SVD of SST-SLP anomalies (no trend, rolling ",ny," years, weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
+    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_control_SVD_SST_SLP_weighted_notrend_rollingyears_",ny,"_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
     
   }else{
-    fig <- grid.arrange(g1,g2, ncol = 1,top = textGrob(paste0(sel.season," , historical: SVD of SST-SLP anomalies (no trend, weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
-    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_SVD_SST_SLP_weighted_notrend_ensmean_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
+    fig <- grid.arrange(g1,g2, ncol = 1,top = textGrob(paste0(sel.season," , control: SVD of SST-SLP anomalies (no trend, weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
+    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_control_SVD_SST_SLP_weighted_notrend_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
     
   }
   
 }else{
-  # save(sst.pcs,sst.eof,file=paste0("/home/maralv/data/",sel.season,"_historical_ECEarth3_PCs_EOFs_SST_weighted_allmembers.RData"))
+  # save(sst.pcs,sst.eof,file=paste0("/home/maralv/data/",sel.season,"_control_ECEarth3_PCs_EOFs_SST_weighted_allmembers.RData"))
   if(roll.years==TRUE){
-    fig <- grid.arrange(g1,g2, ncol = 1,top = textGrob(paste0(sel.season," , historical: SVD of SST-SLP anomalies (rolling ",ny," years, weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
-    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_SVD_SST_SLP_weighted_ensmean_rollingyears_",ny,"_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
+    fig <- grid.arrange(g1,g2, ncol = 1,top = textGrob(paste0(sel.season," , control: SVD of SST-SLP anomalies (rolling ",ny," years, weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
+    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_control_SVD_SST_SLP_weighted_rollingyears_",ny,"_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
     
   }else{
-    fig <- grid.arrange(g1,g2, ncol = 1,top = textGrob(paste0(sel.season," , historical: SVD of SST-SLP anomalies (weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
-    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_SVD_SST_SLP_weighted_ensmean_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
+    fig <- grid.arrange(g1,g2, ncol = 1,top = textGrob(paste0(sel.season," , control: SVD of SST-SLP anomalies (weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
+    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_control_SVD_SST_SLP_weighted_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
     
   }
 } 
