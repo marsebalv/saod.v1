@@ -96,13 +96,13 @@
   
   #################### Settings ########################
   # Remove trend? TRUE or FALSE
-  remove.trend=TRUE
+  remove.trend=FALSE
   
   # Members being used
   members=c(1,2,4,5,6,7,8,9,10,11,12,13,14,15,16)
   # Period selection
   start.date=as.Date("1949-01-01")
-  end.date=as.Date("1978-12-16")
+  end.date=as.Date("2014-12-16")
   ######################################################
   # Select range of years
   st.yr=year(start.date)
@@ -359,7 +359,7 @@ if(remove.trend==TRUE){
   # save(sst.pcs,sst.eof,file=paste0("/home/maralv/data/AllMonths_historical_ECEarth3_PCs_EOFs_SST_weighted_allmembers.RData"))
 
     fig <- grid.arrange(g1,g2, ncol = 1,top = textGrob(paste0("All months, historical: SVD of SST-SLP anomalies (weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
-    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/AllMonths_historical_SVD_SST_SLP_weighted_ensmean_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
+    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/AllMonths_historical_SVD_SST_SLP_weighted_allmembers_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
 
 } 
 

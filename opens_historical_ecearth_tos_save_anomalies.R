@@ -132,3 +132,5 @@ sst.ECE$smthclim=NULL
 sst.ECE=sst.ECE[order(targetdate),]
 
 save("sst.ECE",file="/home/maralv/data/asst.ECEarth.hist.19492014.RData")
+
+save("clim.sst.ECE",file="/home/maralv/data/clim.sst.ECEarth.hist.19492014.RData")

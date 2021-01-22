@@ -296,19 +296,19 @@ slp[lon>180]$lon=slp[lon>180]$lon-360
 map.world <- map_data ("world2", wrap = c(-180,180))
 
 # Only one plot, both patterns
-bmin=-0.7
-bmax=0.7
-bstep=0.1
-bbreaks=c(-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7)
+bmin=-0.9
+bmax=0.9
+bbreaks=c(-99,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,99)
 
 # Need to select a single date as values are repeated by date
 g1 = ggplot() +
-  geom_contour_fill(data=sst[date==as.Date("1949-01-01")],aes(lon, lat, z = hcm.1),breaks=bbreaks,na.fill=TRUE)+
+  geom_contour_fill(data=sst[date==as.Date("1949-01-01")],aes(lon, lat, z = hcm.1, fill=stat(level)),breaks=bbreaks,na.fill=TRUE)+
   scale_fill_distiller(name="SST",palette="RdBu",direction=-1,
-                       breaks=bbreaks,
                        limits=c(bmin,bmax),
-                       guide = guide_colorstrip(),
+                       super = ScaleDiscretised,
+                       guide = guide_colorsteps(),
                        oob  = scales::squish)+
+  guides(fill = guide_colourbar(barwidth = 0.9, barheight = 10))+
   new_scale_color() +
   geom_contour(data=slp[date==as.Date("1949-01-01")],aes(lon, lat, z = hcm.1),bbreaks=seq(-1,1,0.1),color="black",size=0.25)+
   geom_text_contour(data=slp[date==as.Date("1949-01-01")],aes(lon, lat, z = hcm.1),breaks=seq(-1,1,0.1),stroke = 0.1,min.size = 10)+

@@ -103,6 +103,8 @@ clim.psl.ECE$smthclim=NA_real_
 clim.psl.ECE = clim.psl.ECE[,.(targetmonth,clim,smthclim = fun3mrm(clim)),by=.(lat,lon)]
 clim.psl.ECE$clim=NULL
 
+
+
 #________________________________________
 # Compute anomalies                      \______________________________________________
 
@@ -132,3 +134,5 @@ psl.ECE$smthclim=NULL
 psl.ECE=psl.ECE[order(targetdate),]
 
 save("psl.ECE",file="/home/maralv/data/apsl.ECEarth.hist.19492014.RData")
+
+save("clim.psl.ECE",file="/home/maralv/data/clim.psl.ECEarth.hist.19492014.RData")

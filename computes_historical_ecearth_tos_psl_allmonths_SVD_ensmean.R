@@ -100,7 +100,16 @@ remove.trend=TRUE
 
 # Members being used
 members=c(1,2,4,5,6,7,8,9,10,11,12,13,14,15,16)
+# Period selection
+start.date=as.Date("1979-12-01")
+end.date=as.Date("2014-12-16")
 ######################################################
+# Select range of years
+st.yr=year(start.date)
+ed.yr=year(end.date)
+
+sst.ECE=sst.ECE[targetdate>=start.date & targetdate<end.date,]
+psl.ECE=psl.ECE[targetdate>=start.date & targetdate<end.date,]
 
 # Rearrange data using number of member as variable
 # STT
@@ -261,14 +270,14 @@ g2 = ggplot() +
 if(remove.trend==TRUE){
 
     fig <- grid.arrange(g1,g2, ncol = 1,top = textGrob(paste0("All months , historical: SVD of SST-SLP anomalies (no trend, weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
-    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/AllMonths_historical_SVD_SST_SLP_weighted_notrend_ensmean.png"),plot=fig,width = 8, height = 8)
+    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/AllMonths_historical_SVD_SST_SLP_weighted_notrend_ensmean_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
     
   
 }else{
   # save(sst.pcs,sst.eof,file=paste0("/home/maralv/data/AllMonths_historical_ECEarth3_PCs_EOFs_SST_weighted_allmembers.RData"))
 
     fig <- grid.arrange(g1,g2, ncol = 1,top = textGrob(paste0("All months, historical: SVD of SST-SLP anomalies (weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
-    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/AllMonths_historical_SVD_SST_SLP_weighted_ensmean.png"),plot=fig,width = 8, height = 8)
+    ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/AllMonths_historical_SVD_SST_SLP_weighted_ensmean_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
 
 } 
 
