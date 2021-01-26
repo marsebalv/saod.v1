@@ -226,8 +226,8 @@
   # Last real date is "2014-12-16"
   lastdate=end.date
   exp.coef[date>(lastdate %m+% years(1*100)),]$member=2
-  for(i in c(2,4,5,6,7,8,9,10,11,12,13,14,15,16)){
-    exp.coef[eval(parse(text=paste0("date>(as.Date(lastdate) %m+% years(",i,"*100))"))),]$member=(i+1)
+  for(i in c(4,5,6,7,8,9,10,11,12,13,14,15,16)){
+    exp.coef[eval(parse(text=paste0("date>(as.Date(lastdate) %m+% years(",(i-1),"*100))"))),]$member=(i)
   }
   exp.coef$realdate=exp.coef$date %m-% years(exp.coef$member*100)
   exp.coef$date=NULL
@@ -348,21 +348,21 @@ g3 <- ggplot(data=exp.coef.separated, aes(x=ec1.sst.norm, y=ec1.slp.norm)) +
   ggtitle(paste0("Density plot of norm. EC (r=",as.character(round(cor(exp.coef.separated$ec1.sst.norm,exp.coef.separated$ec1.slp.norm,use = "pairwise.complete.obs"),2))," )"))+
   theme(axis.text = element_text(size=11),axis.title = element_text(size=11),title = element_text(size=10))
 
-# Save Figure and PCs for the lead
+# Save Figure and ECs for spectra
 
 if(remove.trend==TRUE){
 
     fig <- grid.arrange(g1,g2,g3, layout_matrix=rbind(c(1,1,4),c(2,2,3)),top = textGrob(paste0("All months , historical: SVD of SST-SLP anomalies (no trend, weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
     ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/AllMonths_historical_SVD_SST_SLP_weighted_notrend_allmembers_",st.yr,"-",ed.yr,".png"),plot=fig,width = 12, height = 8)
+    save("exp.coef.separated",file=paste0("/home/maralv/data/ECs1_SVD_SST_SLP_weighted_notrend_allmembers_",st.yr,"-",ed.yr,".RData"))
   
 }else{
   # save(sst.pcs,sst.eof,file=paste0("/home/maralv/data/AllMonths_historical_ECEarth3_PCs_EOFs_SST_weighted_allmembers.RData"))
 
     fig <- grid.arrange(g1,g2, ncol = 1,top = textGrob(paste0("All months, historical: SVD of SST-SLP anomalies (weighted by cos(lat)) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
     ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/AllMonths_historical_SVD_SST_SLP_weighted_allmembers_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
-
+    save("exp.coef.separated",file=paste0("/home/maralv/data/ECs1_SVD_SST_SLP_weighted_allmembers_",st.yr,"-",ed.yr,".RData"))
 } 
 
 
 
- 

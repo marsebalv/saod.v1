@@ -350,12 +350,13 @@
   # Last real date is "2014-12-16"
   lastdate=end.date
   exp.coef[date>(lastdate %m+% years(1*100)),]$member=2
-  for(i in c(2,4,5,6,7,8,9,10,11,12,13,14,15,16)){
-    exp.coef[eval(parse(text=paste0("date>(as.Date(lastdate) %m+% years(",i,"*100))"))),]$member=(i+1)
+  for(i in c(4,5,6,7,8,9,10,11,12,13,14,15,16)){
+    exp.coef[eval(parse(text=paste0("date>(as.Date(lastdate) %m+% years(",(i-1),"*100))"))),]$member=(i)
   }
   exp.coef$realdate=exp.coef$date %m-% years(exp.coef$member*100)
   exp.coef$date=NULL
   setnames(exp.coef,"realdate","date")
+  
   
   #------------------------
   # SST
