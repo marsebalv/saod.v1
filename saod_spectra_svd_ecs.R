@@ -197,3 +197,53 @@ fig <- grid.arrange(g1,g2,g3,g4,g5,g6, ncol = 2,top = textGrob(paste0("SST-SLP m
 ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/spectra.png"),plot=fig,width = 13, height = 12)
 
 
+#######################3
+# Performs spectra of smooth (but not normalized) coefficients
+
+#########################################################################################
+# SST
+
+library('data.table')
+
+data1 = as.data.table(exp.coef$ec.sst.1)
+data1 = frollmean(data1,13,align="center",fill=NA)[[1]]
+# remove NA
+data1=data1[!is.na(data1)]
+
+out = fftspectrum(data1, spans = c(3,5), B = 1000, probs = 0.90)
+
+out$period = 1/out$freq
+out$periodYY = out$period/12
+
+# Plot
+
+g7 <- ggplot()+
+  theme_bw()+
+  geom_line(data=out,aes(periodYY,spec),col="#238443",alpha=0.9)+
+  geom_line(data=out,aes(periodYY,ar_spectrum),col="#78c679",alpha=0.9,linetype = "dashed")+
+  geom_ribbon(data=out, aes(periodYY, ymin=(spec*0) , ymax=`90%` ),fill="#d9f0a3",alpha=0.5)+
+  scale_x_continuous(trans=reverselog_trans(10),breaks=c(72,30,20,14,9,5,3,2,1))+
+  labs(x="Period (years)",y="Power",title = "SAOD (SVD1) - SST Exp. Coeff. Spectrum (90%)")+
+  theme(text = element_text(size=14),title = element_text(size=14),axis.text = element_text(size = 14))
+
+data1 = as.data.table(exp.coef$ec.slp.1)
+data1 = frollmean(data1,13,align="center",fill=NA)[[1]]
+# remove NA
+data1=data1[!is.na(data1)]
+
+out = fftspectrum(data1, spans = c(3,5), B = 1000, probs = 0.90)
+
+out$period = 1/out$freq
+out$periodYY = out$period/12
+
+g8 <- ggplot()+
+  theme_bw()+
+  geom_line(data=out,aes(periodYY,spec),col="#ae017e",alpha=0.9)+
+  geom_line(data=out,aes(periodYY,ar_spectrum),col="#f768a1",alpha=0.9,linetype = "dashed")+
+  geom_ribbon(data=out, aes(periodYY, ymin=(spec*0) , ymax=`90%` ),fill="#fa9fb5",alpha=0.5)+
+  scale_x_continuous(trans=reverselog_trans(10),breaks=c(72,30,20,14,9,5,3,2,1))+
+  labs(x="Period (years)",y="Power",title = "SAOD (SVD1) - SLP Exp. Coeff. Spectrum (90%)")+
+  theme(text = element_text(size=14),title = element_text(size=14),axis.text = element_text(size = 14))
+
+fig <- grid.arrange(g7,g8, ncol = 2)
+ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/spectra_SVD1_ECs_observations_monthly.png"),plot=fig,width = 13, height = 6)
