@@ -89,7 +89,7 @@ makematrix <- function(data1,f){
 # Remove trend? TRUE or FALSE
 remove.trend=TRUE
 # Select season
-sel.season="DJF"
+sel.season="JJA"
 # Rolling years
 roll.years=FALSE
 # number of years to roll
@@ -428,10 +428,13 @@ if(remove.trend==TRUE){
   if(roll.years==TRUE){
     fig <- grid.arrange(g1,g2, ncol = 1,top = textGrob(paste0(sel.season," , OBS: SVD of SST-SLP anomalies (no trend, rolling ",ny," years, weighted by cos(lat))"),gp=gpar(fontsize=13,font=3)))
     ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_OBS_Leading_SVD_SST_SLP_weighted_notrend_rollingyears_",ny,"_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
-    
+
   }else{
     fig <- grid.arrange(g1,g2, ncol = 1,top = textGrob(paste0(sel.season," , OBS: SVD of SST-SLP anomalies (no trend, weighted by cos(lat))"),gp=gpar(fontsize=13,font=3)))
     ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_OBS_Leading_SVD_SST_SLP_weighted_notrend_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
+    
+    # Save ECs
+    save(sst,slp,exp.coef.norm,file=paste0("/home/maralv/data/ECs_SVD1_",sel.season,"_OBS_weighted_notrend.rda"))
     
   }
   
@@ -445,5 +448,7 @@ if(remove.trend==TRUE){
     fig <- grid.arrange(g1,g2, ncol = 1,top = textGrob(paste0(sel.season," , OBS: SVD of SST-SLP anomalies (weighted by cos(lat))"),gp=gpar(fontsize=13,font=3)))
     ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_OBS_Leading_SVD_SST_SLP_weighted_",st.yr,"-",ed.yr,".png"),plot=fig,width = 8, height = 8)
     
+    # Save ECs
+    save(sst,slp,exp.coef.norm,file=paste0("/home/maralv/data/ECs_SVD1_",sel.season,"_OBS_weighted.rda"))
   }
 } 
