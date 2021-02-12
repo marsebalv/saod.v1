@@ -38,7 +38,7 @@ setwd("/home/maralv/")
 # # Remove trend? TRUE or FALSE
 remove.trend=TRUE
 # Select season
-sel.season="DJF"
+sel.season="JJA"
 # Lead selection inside a for loop
 ######################################################
 
@@ -88,32 +88,32 @@ psl.ECE.allin1.dcpp=psl.ECE.allin1
 exp.coef.separated.dcpp=exp.coef.separated
 rm(sst.ECE.allin1,psl.ECE.allin1,exp.coef.separated)
 
-###### Making targetdates match
+###### Making targetdates match and falling in the middle of the season
 if(sel.season=="DJF"){
   # DCPP: Targetdate year is ok by construction, mmdd set to 01-16
-  exp.coef.separated.dcpp$targetdate = as.Date(as.character(paste0(year(exp.coef.separated.dcpp$targetdate),"-01-01")))
+  exp.coef.separated.dcpp$targetdate = as.Date(as.character(paste0(year(exp.coef.separated.dcpp$targetdate),"-01-16")))
   
   # Historical: date set as 1949-12-16 to represent DJF 49/50 -> a year must be added
   exp.coef.separated.hist=exp.coef.separated.hist[date>=as.Date("1949-12-01")]                                  # Eliminates 1949 data because Dec. 1948 was not used
   exp.coef.separated.hist$date = exp.coef.separated.hist$date %m+% years(1)                                     # Add 1 year
-  exp.coef.separated.hist$date = as.Date(as.character(paste0(year(exp.coef.separated.hist$date),"-01-01")))     # Moves all dates to 01/01  
+  exp.coef.separated.hist$date = as.Date(as.character(paste0(year(exp.coef.separated.hist$date),"-01-16")))     # Moves all dates to 16/01  
   
   # Obs: Date taken from December month (mmdd set to 12-01) -> a year must be added
   exp.coef.norm.OBS=exp.coef.norm.OBS[date>=as.Date("1949-12-01")]                                  # Eliminates 1949 data because Dec. 1948 was not used
   exp.coef.norm.OBS$date = exp.coef.norm.OBS$date %m+% years(1)                                     # Add 1 year
-  exp.coef.norm.OBS$date = as.Date(as.character(paste0(year(exp.coef.norm.OBS$date),"-01-01")))     # Moves all dates to 01/01
-
+  exp.coef.norm.OBS$date = as.Date(as.character(paste0(year(exp.coef.norm.OBS$date),"-01-16")))     # Moves all dates to 01/01
+  
 }else if(sel.season=="JJA"){
   # No problem with dates, mmdd should be aligned.
   
   # DCPP: Targetdate year is ok by construction, mmdd set to 06-16
-  exp.coef.separated.dcpp$targetdate = as.Date(as.character(paste0(year(exp.coef.separated.dcpp$targetdate),"-06-01")))
+  exp.coef.separated.dcpp$targetdate = as.Date(as.character(paste0(year(exp.coef.separated.dcpp$targetdate),"-07-16")))
   
   # Historical: date set as 1949-06-16 to represent JJA 49 -> a year must be added
-  exp.coef.separated.hist$date = as.Date(as.character(paste0(year(exp.coef.separated.hist$date),"-06-01")))     # Moves all dates to 06/01  
+  exp.coef.separated.hist$date = as.Date(as.character(paste0(year(exp.coef.separated.hist$date),"-07-16")))     # Moves all dates to 06/01  
   
   # Obs: Date set to 06-01 -> a year must be added
-  exp.coef.norm.OBS$date = as.Date(as.character(paste0(year(exp.coef.norm.OBS$date),"-06-01")))     # Moves all dates to 06/01, just in case
+  exp.coef.norm.OBS$date = as.Date(as.character(paste0(year(exp.coef.norm.OBS$date),"-07-16")))     # Moves all dates to 06/01, just in case
   
 }
 
