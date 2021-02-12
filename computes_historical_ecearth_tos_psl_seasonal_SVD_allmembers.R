@@ -96,7 +96,7 @@
   
   #################### Settings ########################
   # Remove trend? TRUE or FALSE
-  remove.trend=FALSE
+  remove.trend=TRUE
   # Select season
   sel.season="JJA"
   # Rolling years
@@ -485,6 +485,9 @@ if(remove.trend==TRUE){
     fig <- grid.arrange(g1,g2,g3, layout_matrix=rbind(c(1,1,4),c(2,2,3)),top = textGrob(paste0(sel.season,", historical: SVD of SST-SLP anomalies (no trend, weighted) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
     ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_SVD_SST_SLP_weighted_notrend_allmembers_",st.yr,"-",ed.yr,".png"),plot=fig,width = 12, height = 8)
     
+    # Save ECs
+    save(sst.ECE.allin1,psl.ECE.allin1,exp.coef.separated,file=paste0("/home/maralv/data/ECs_SVD1_",sel.season,"_historical_weighted_notrend_allmembers.rda"))
+    
   } #endif roll
   
 }else{ # No trend
@@ -496,6 +499,10 @@ if(remove.trend==TRUE){
     
     fig <- grid.arrange(g1,g2,g3, layout_matrix=rbind(c(1,1,4),c(2,2,3)),top = textGrob(paste0(sel.season,", historical: SVD of SST-SLP anomalies ( weighted) EC-Earth3"),gp=gpar(fontsize=13,font=3)))
     ggsave(filename=paste0("/home/maralv/Dropbox/DMI/Figures/",sel.season,"_historical_SVD_SST_SLP_weighted_allmembers_",st.yr,"-",ed.yr,".png"),plot=fig,width = 12, height = 8)
+    
+    # Save ECs
+    save(sst.ECE.allin1,psl.ECE.allin1,exp.coef.separated,file=paste0("/home/maralv/data/ECs_SVD1_",sel.season,"_historical_weighted_allmembers.rda"))
+    
     
   } #endif roll
   
