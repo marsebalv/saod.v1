@@ -92,7 +92,7 @@ makematrix <- function(data1,f){
 # # Remove trend? TRUE or FALSE
 remove.trend=FALSE
 # Select season
-sel.season="JJA"
+sel.season="DJF"
 # Select lead
 sel.lead=l
 ######################################################
@@ -191,7 +191,7 @@ if(remove.trend==TRUE){
   setnames(psl.ECE,"dt.apsl","apsl")
 }
 
-# Compute lead-dependent start-date-dependent seasonal average for the ensemble mean
+# Compute lead-dependent seasonal average for the ensemble mean
 # SST
 s.clim.sst.ECE=sst.ECE[member==99,]
 s.clim.sst.ECE=s.clim.sst.ECE[,.(lat,lon,startdate,targetdate,asst)]
